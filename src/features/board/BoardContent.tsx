@@ -119,7 +119,13 @@ function BoardInner({ roomId }: { roomId: string }) {
 
   // ── Phase: result ────────────────────────────────────────────────────────
   if (phase === "result") {
-    return <ResultScreen participants={participants} />;
+    return (
+      <ResultScreen
+        participants={participants}
+        title={roomData?.room.title}
+        subtitle={roomData?.room.subtitle}
+      />
+    );
   }
 
   // ── Phase: waiting ───────────────────────────────────────────────────────
