@@ -13,8 +13,20 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "〇〇王決定戦",
-  description: "リアルタイム選手権システム",
+  title: "Quiz King | 究極のクイズバトルプラットフォーム",
+  description: "リアルタイムでクイズ大会を開催・参加できるWebアプリケーション。友達や同僚と盛り上がろう！",
+  openGraph: {
+    title: "Quiz King | 究極のクイズバトルプラットフォーム",
+    description: "リアルタイムでクイズ大会を開催・参加できるWebアプリケーション。友達や同僚と盛り上がろう！",
+    type: "website",
+    locale: "ja_JP",
+    siteName: "Quiz King",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Quiz King | 究極のクイズバトルプラットフォーム",
+    description: "リアルタイムでクイズ大会を開催・参加できるWebアプリケーション。",
+  },
 };
 
 export default function RootLayout({
@@ -23,9 +35,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="ja">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-slate-950 text-slate-50`}
       >
         {children}
       </body>
