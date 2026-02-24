@@ -131,11 +131,6 @@ export function Podium({ participants }: PodiumProps) {
         <span className="text-transparent bg-clip-text bg-gradient-to-b from-yellow-200 via-yellow-400 to-yellow-700 drop-shadow-[0_2px_2px_rgba(0,0,0,0.8)]">
           結果発表
         </span>
-        <div className="flex items-center justify-center gap-4 mt-2">
-          <div className="h-px w-16 bg-gradient-to-r from-transparent via-yellow-500 to-transparent" />
-          <span className="text-yellow-100/60 text-lg font-serif tracking-[0.3em] uppercase">Top 3 Players</span>
-          <div className="h-px w-16 bg-gradient-to-r from-transparent via-yellow-500 to-transparent" />
-        </div>
       </motion.h2>
 
       {/* Podium stage */}
