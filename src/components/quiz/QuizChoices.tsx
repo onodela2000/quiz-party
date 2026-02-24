@@ -40,7 +40,7 @@ function getChoiceStyle(
 
   // Selected (before reveal)
   if (index === selectedIndex) {
-    return `${base} bg-gradient-to-r from-yellow-900/80 to-yellow-800/80 border-yellow-500 shadow-[0_0_20px_rgba(234,179,8,0.3)] scale-105 z-10`;
+    return `${base} bg-gradient-to-r from-yellow-900/80 to-yellow-800/80 border-yellow-500 shadow-[0_0_20px_rgba(234,179,8,0.3)]`;
   }
 
   // Default

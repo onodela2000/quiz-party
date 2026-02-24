@@ -95,7 +95,8 @@ export function AnswerCell({
 
         {/* Choice badge */}
         <div className="absolute -bottom-3 left-1/2 -translate-x-1/2">
-          {hasAnswered ? (
+          {revealed && hasAnswered ? (
+            // reveal後のみ選択肢を表示
             <motion.div
               initial={{ scale: 0, y: 10 }}
               animate={{ scale: 1, y: 0 }}
@@ -106,7 +107,17 @@ export function AnswerCell({
             >
               {CHOICE_LABELS[choiceIndex % CHOICE_LABELS.length]}
             </motion.div>
+          ) : hasAnswered ? (
+            // 回答済みだが未公開：チェックマークのみ
+            <motion.div
+              initial={{ scale: 0, y: 10 }}
+              animate={{ scale: 1, y: 0 }}
+              className="flex items-center justify-center w-8 h-8 rounded-full border-2 border-emerald-500 bg-emerald-900/60 text-emerald-300 text-sm font-black"
+            >
+              ✓
+            </motion.div>
           ) : (
+            // 未回答
             <motion.div
               animate={{ y: [0, -4, 0] }}
               transition={{ duration: 2, repeat: Infinity }}

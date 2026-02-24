@@ -51,10 +51,15 @@ export function PlayerGameView({ title }: { title: string }) {
     if (!currentQuiz) return
     setAnsweredQuizIds((prev) => new Set(prev).add(currentQuiz.id))
     setSelectedIndexMap((prev) => ({ ...prev, [currentQuiz.id]: index }))
-    setAnswerRecords((prev) => [
-      ...prev,
-      { quizId: currentQuiz.id, choiceIndex: index, is_correct: false },
-    ])
+    setAnswerRecords((prev) => {
+      const existing = prev.findIndex((r) => r.quizId === currentQuiz.id)
+      if (existing !== -1) {
+        const updated = [...prev]
+        updated[existing] = { quizId: currentQuiz.id, choiceIndex: index, is_correct: false }
+        return updated
+      }
+      return [...prev, { quizId: currentQuiz.id, choiceIndex: index, is_correct: false }]
+    })
   }
 
   const hasAnsweredCurrent =
