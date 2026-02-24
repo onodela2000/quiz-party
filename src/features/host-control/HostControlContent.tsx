@@ -1,7 +1,7 @@
 "use client"
 
-import { useState } from "react"
-import { useParams, useSearchParams } from "next/navigation"
+import { useState, useEffect } from "react"
+import { useParams, useSearchParams, useRouter } from "next/navigation"
 import { motion } from "framer-motion"
 import useSWR from "swr"
 import { RoomProvider, useRoom } from "@/providers/RoomProvider"
@@ -27,12 +27,13 @@ function HostControlBody({
   room: Room | undefined
 }) {
   const [copied, setCopied] = useState(false)
+  const [playUrl, setPlayUrl] = useState(`/play/${roomId}`)
   const { participants } = useRoom()
+  const router = useRouter()
 
-  const playUrl =
-    typeof window !== "undefined"
-      ? `${window.location.origin}/play/${roomId}`
-      : `/play/${roomId}`
+  useEffect(() => {
+    setPlayUrl(`${window.location.origin}/play/${roomId}`)
+  }, [roomId])
 
   const handleCopyUrl = async () => {
     try {
@@ -70,6 +71,17 @@ function HostControlBody({
               <span className="text-slate-500 animate-pulse">Loading...</span>
             )}
           </h1>
+          {room?.status === "waiting" && (
+            <motion.button
+              type="button"
+              onClick={() => router.push(`/host/${roomId}/edit`)}
+              whileHover={{ scale: 1.03 }}
+              whileTap={{ scale: 0.97 }}
+              className="mt-1 text-xs font-bold text-yellow-500/60 hover:text-yellow-400 uppercase tracking-widest px-4 py-2 rounded-lg border border-yellow-600/20 hover:border-yellow-500/40 transition-all"
+            >
+              ✏️ Edit
+            </motion.button>
+          )}
         </motion.div>
 
         {/* 参加者数 + 参加URL */}

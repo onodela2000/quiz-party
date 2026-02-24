@@ -125,14 +125,20 @@ export function Podium({ participants }: PodiumProps) {
         initial={{ opacity: 0, y: -24 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, type: "spring", stiffness: 200 }}
-        className="relative z-10 text-3xl md:text-5xl font-black tracking-tight text-slate-900 mb-10"
+        className="relative z-10 text-4xl md:text-6xl font-black tracking-tight text-center mb-16"
       >
-        <span className="text-yellow-500">RESULT</span>
-        <span className="text-slate-400 text-xl ml-3">— Top 3 —</span>
+        <span className="text-transparent bg-clip-text bg-gradient-to-b from-yellow-200 via-yellow-400 to-yellow-700 drop-shadow-[0_2px_2px_rgba(0,0,0,0.8)]">
+          FINAL RESULT
+        </span>
+        <div className="flex items-center justify-center gap-4 mt-2">
+          <div className="h-px w-16 bg-gradient-to-r from-transparent via-yellow-500 to-transparent" />
+          <span className="text-yellow-100/60 text-lg font-serif tracking-[0.3em] uppercase">Top 3 Players</span>
+          <div className="h-px w-16 bg-gradient-to-r from-transparent via-yellow-500 to-transparent" />
+        </div>
       </motion.h2>
 
       {/* Podium stage */}
-      <div className="relative z-10 flex items-end justify-center gap-4 w-full max-w-2xl px-4">
+      <div className="relative z-10 flex items-end justify-center gap-2 md:gap-6 w-full max-w-3xl px-4">
         {PODIUM_ORDER.map((rankIndex) => {
           const participant = top3[rankIndex];
           if (!participant) return null;
@@ -141,24 +147,24 @@ export function Podium({ participants }: PodiumProps) {
           return (
             <motion.div
               key={participant.id}
-              className="flex flex-col items-center gap-2"
+              className="flex flex-col items-center gap-3"
               style={{ order: config.order }}
-              initial={{ opacity: 0, y: 60 }}
+              initial={{ opacity: 0, y: 100 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{
                 delay: config.delay,
                 type: "spring",
-                stiffness: 180,
-                damping: 22,
+                stiffness: 120,
+                damping: 20,
               }}
             >
               {/* Crown for 1st */}
               {config.crown && (
                 <motion.span
-                  initial={{ scale: 0, rotate: -30 }}
-                  animate={{ scale: 1, rotate: 0 }}
-                  transition={{ delay: 1.0, type: "spring", stiffness: 300, damping: 16 }}
-                  className="text-4xl select-none"
+                  initial={{ scale: 0, rotate: -30, y: 20 }}
+                  animate={{ scale: 1, rotate: 0, y: 0 }}
+                  transition={{ delay: 1.2, type: "spring", stiffness: 300, damping: 12 }}
+                  className="text-6xl select-none filter drop-shadow-[0_0_15px_rgba(234,179,8,0.6)]"
                 >
                   👑
                 </motion.span>
@@ -168,24 +174,24 @@ export function Podium({ participants }: PodiumProps) {
               <motion.div
                 initial={{ scale: 0 }}
                 animate={{ scale: 1 }}
-                transition={{ delay: config.delay + 0.15, type: "spring", stiffness: 260, damping: 20 }}
+                transition={{ delay: config.delay + 0.2, type: "spring", stiffness: 260, damping: 20 }}
                 className={[
-                  "flex items-center justify-center rounded-full border-2",
+                  "flex items-center justify-center rounded-full border-4 shadow-2xl relative z-10",
                   config.badgeSize,
                   config.glow,
                   rankIndex === 0
-                    ? "border-yellow-400 bg-yellow-500/20"
+                    ? "border-yellow-400 bg-black/60"
                     : rankIndex === 1
-                    ? "border-slate-400 bg-slate-500/20"
-                    : "border-amber-600 bg-amber-700/20",
+                    ? "border-slate-300 bg-black/60"
+                    : "border-amber-600 bg-black/60",
                 ].join(" ")}
               >
-                <span className={`${config.iconSize} select-none`}>{participant.icon}</span>
+                <span className={`${config.iconSize} select-none filter drop-shadow-md`}>{participant.icon}</span>
               </motion.div>
 
               {/* Name */}
               <span
-                className={`font-black text-slate-900 text-center leading-tight ${config.nameSize}`}
+                className={`font-black text-white text-center leading-tight tracking-wide drop-shadow-md ${config.nameSize}`}
               >
                 {participant.name}
               </span>
@@ -194,33 +200,34 @@ export function Podium({ participants }: PodiumProps) {
               <motion.span
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                transition={{ delay: config.delay + 0.3 }}
-                className={`font-black tabular-nums ${config.scoreSize} ${config.labelColor}`}
+                transition={{ delay: config.delay + 0.4 }}
+                className={`font-black tabular-nums ${config.scoreSize} ${config.labelColor} drop-shadow-sm`}
               >
                 {participant.score.toLocaleString()}
-                <span className="text-xs font-semibold text-slate-400 ml-1">pt</span>
+                <span className="text-xs font-bold text-white/50 ml-1">pt</span>
               </motion.span>
 
               {/* Podium block */}
               <motion.div
                 className={[
-                  "w-28 md:w-36 rounded-t-xl border",
+                  "w-24 md:w-40 rounded-t-lg border-x-2 border-t-2 shadow-[0_0_30px_rgba(0,0,0,0.5)]",
                   config.height,
                   config.bg,
-                  "flex items-center justify-center",
+                  "flex items-center justify-center relative overflow-hidden backdrop-blur-sm",
                 ].join(" ")}
                 initial={{ scaleY: 0, originY: 1 }}
                 animate={{ scaleY: 1 }}
                 transition={{
                   delay: config.delay,
                   type: "spring",
-                  stiffness: 200,
-                  damping: 28,
+                  stiffness: 150,
+                  damping: 24,
                 }}
                 style={{ transformOrigin: "bottom" }}
               >
+                <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/wood-pattern.png')] opacity-20 mix-blend-overlay" />
                 <span
-                  className={`font-black ${config.textSize} ${config.labelColor} select-none`}
+                  className={`font-black ${config.textSize} ${config.labelColor} select-none drop-shadow-md relative z-10`}
                 >
                   {config.label}
                 </span>

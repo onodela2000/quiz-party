@@ -1,5 +1,10 @@
-import { HostControlContent } from '@/features/host-control/HostControlContent'
+import { redirect } from 'next/navigation'
 
-export default function Page() {
-  return <HostControlContent />
+export default async function Page({
+  params,
+}: {
+  params: Promise<{ roomId: string }>
+}) {
+  const { roomId } = await params
+  redirect(`/host/${roomId}/board`)
 }

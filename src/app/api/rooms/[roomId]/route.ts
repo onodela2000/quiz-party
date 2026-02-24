@@ -6,6 +6,8 @@ import { GamePhase } from '@/types/game'
 interface PatchRoomBody {
   status?: GamePhase
   current_quiz_index?: number
+  title?: string
+  subtitle?: string | null
 }
 
 export async function GET(
@@ -42,11 +44,13 @@ export async function PATCH(
   try {
     const { roomId } = await params
     const body: PatchRoomBody = await request.json()
-    const { status, current_quiz_index } = body
+    const { status, current_quiz_index, title, subtitle } = body
 
-    const updateData: { status?: string; current_quiz_index?: number } = {}
+    const updateData: { status?: string; current_quiz_index?: number; title?: string; subtitle?: string | null } = {}
     if (status !== undefined) updateData.status = status
     if (current_quiz_index !== undefined) updateData.current_quiz_index = current_quiz_index
+    if (title !== undefined) updateData.title = title
+    if (subtitle !== undefined) updateData.subtitle = subtitle
 
     const supabase = await createClient()
 

@@ -15,11 +15,12 @@ type Props = {
   quiz: QuizForm
   onChange: (quiz: QuizForm) => void
   onRemove: () => void
+  onPreview: () => void
 }
 
 const CHOICE_LABELS = ["A", "B", "C", "D"] as const
 
-export function QuizEditor({ index, quiz, onChange, onRemove }: Props) {
+export function QuizEditor({ index, quiz, onChange, onRemove, onPreview }: Props) {
   const handleQuestion = (value: string) => {
     onChange({ ...quiz, question: value })
   }
@@ -44,89 +45,86 @@ export function QuizEditor({ index, quiz, onChange, onRemove }: Props) {
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -16 }}
       transition={{ duration: 0.25 }}
-      className="rounded-xl border border-slate-200 bg-white p-5 space-y-4"
+      className="rounded-xl border border-yellow-600/30 bg-black/40 backdrop-blur-md p-6 space-y-6 shadow-lg"
     >
       {/* ヘッダー */}
-      <div className="flex items-center justify-between">
-        <span className="text-sm font-semibold text-indigo-500 tracking-wider uppercase">
-          Q{index + 1}
+      <div className="flex items-center justify-between border-b border-white/10 pb-4">
+        <span className="text-sm font-black text-yellow-500 tracking-widest uppercase flex items-center gap-2">
+          <span className="w-6 h-6 rounded-full bg-yellow-500/20 border border-yellow-500/50 flex items-center justify-center text-xs">Q</span>
+          第{index + 1}問
         </span>
-        <Button variant="danger" size="sm" onClick={onRemove} type="button">
-          削除
-        </Button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={onPreview}
+            type="button"
+            className="text-xs font-bold text-yellow-400/70 hover:text-yellow-300 uppercase tracking-wider px-3 py-1 rounded hover:bg-yellow-900/20 transition-colors"
+          >
+            Preview
+          </button>
+          <button
+            onClick={onRemove}
+            type="button"
+            className="text-xs font-bold text-red-400 hover:text-red-300 uppercase tracking-wider px-3 py-1 rounded hover:bg-red-900/20 transition-colors"
+          >
+            削除
+          </button>
+        </div>
       </div>
 
       {/* 問題文 */}
-      <div className="space-y-1">
-        <label className="block text-sm text-slate-600">
-          問題文 <span className="text-xs text-slate-400">（Markdown 対応）</span>
+      <div className="space-y-2">
+        <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider">
+          問題文 <span className="text-[10px] text-slate-500 ml-1">(Markdown対応)</span>
         </label>
         <textarea
           value={quiz.question}
           onChange={(e) => handleQuestion(e.target.value)}
           rows={3}
           placeholder="問題文を入力してください..."
-          className="w-full rounded-lg bg-white border border-slate-200 focus:border-indigo-500 focus:outline-none text-slate-900 placeholder-slate-400 px-3 py-2 text-sm resize-y transition-colors"
+          className="w-full rounded-lg bg-black/40 border border-white/10 focus:border-yellow-500/50 focus:outline-none text-white placeholder-slate-600 px-4 py-3 text-base resize-y transition-colors font-sans"
         />
       </div>
 
       {/* 選択肢 */}
-      <div className="space-y-2">
-        <label className="block text-sm text-slate-600">選択肢</label>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+      <div className="space-y-3">
+        <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider">選択肢 <span className="text-[10px] text-slate-500 ml-1">(左のボタンで正解を選択)</span></label>
+        <div className="grid grid-cols-1 gap-3">
           {CHOICE_LABELS.map((label, i) => (
-            <div key={label} className="flex items-center gap-2">
-              <span
-                className={[
-                  "flex-shrink-0 w-7 h-7 flex items-center justify-center rounded-md text-xs font-bold border",
-                  quiz.correct_index === i
-                    ? "bg-indigo-500 border-indigo-400 text-white"
-                    : "bg-slate-100 border-slate-200 text-slate-500",
-                ].join(" ")}
-              >
-                {label}
-              </span>
+            <div key={label} className="flex items-center gap-3">
+              <label className="relative flex-shrink-0 cursor-pointer group">
+                <input
+                  type="radio"
+                  name={`correct-${index}`}
+                  value={i}
+                  checked={quiz.correct_index === i}
+                  onChange={() => handleCorrectIndex(i)}
+                  className="peer appearance-none w-10 h-10 rounded-lg border-2 border-slate-700 checked:border-yellow-400 bg-slate-800 checked:bg-yellow-500 transition-all cursor-pointer shadow-sm checked:shadow-[0_0_10px_rgba(234,179,8,0.4)]"
+                />
+                <span className="absolute inset-0 flex items-center justify-center text-sm font-black text-slate-500 peer-checked:text-black transition-colors">
+                  {label}
+                </span>
+              </label>
               <input
                 type="text"
                 value={quiz.choices[i] ?? ""}
                 onChange={(e) => handleChoice(i, e.target.value)}
                 placeholder={`選択肢 ${label}`}
-                className="flex-1 rounded-lg bg-white border border-slate-200 focus:border-indigo-500 focus:outline-none text-slate-900 placeholder-slate-400 px-3 py-1.5 text-sm transition-colors"
+                className="flex-1 rounded-lg bg-black/40 border border-white/10 focus:border-yellow-500/50 focus:outline-none text-white placeholder-slate-600 px-4 py-2.5 text-sm transition-colors"
               />
             </div>
           ))}
         </div>
       </div>
 
-      {/* 正解選択 */}
-      <div className="space-y-1">
-        <label className="block text-sm text-slate-600">正解</label>
-        <div className="flex gap-3 flex-wrap">
-          {CHOICE_LABELS.map((label, i) => (
-            <label key={label} className="flex items-center gap-1.5 cursor-pointer">
-              <input
-                type="radio"
-                name={`correct-${index}`}
-                value={i}
-                checked={quiz.correct_index === i}
-                onChange={() => handleCorrectIndex(i)}
-                className="accent-indigo-500"
-              />
-              <span className="text-sm text-slate-700">{label}</span>
-            </label>
-          ))}
-        </div>
-      </div>
-
       {/* 解説 */}
-      <div className="space-y-1">
-        <label className="block text-sm text-slate-600">解説</label>
+      <div className="space-y-2">
+        <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider">解説</label>
         <textarea
           value={quiz.explanation}
           onChange={(e) => handleExplanation(e.target.value)}
           rows={2}
           placeholder="解説を入力してください..."
-          className="w-full rounded-lg bg-white border border-slate-200 focus:border-indigo-500 focus:outline-none text-slate-900 placeholder-slate-400 px-3 py-2 text-sm resize-y transition-colors"
+          className="w-full rounded-lg bg-black/40 border border-white/10 focus:border-yellow-500/50 focus:outline-none text-white placeholder-slate-600 px-4 py-3 text-sm resize-y transition-colors font-sans"
         />
       </div>
     </motion.div>

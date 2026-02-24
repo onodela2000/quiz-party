@@ -4,6 +4,7 @@ import { Room } from '@/types/room'
 
 interface CreateRoomBody {
   title: string
+  subtitle?: string
   quizzes: {
     question: string
     choices: string[]
@@ -17,7 +18,7 @@ interface CreateRoomBody {
 export async function POST(request: NextRequest) {
   try {
     const body: CreateRoomBody = await request.json()
-    const { title, quizzes } = body
+    const { title, subtitle, quizzes } = body
 
     if (!title) {
       return NextResponse.json({ error: 'title is required' }, { status: 400 })
@@ -28,7 +29,7 @@ export async function POST(request: NextRequest) {
 
     const { data: room, error: roomError } = await supabase
       .from('rooms')
-      .insert({ title, host_id })
+      .insert({ title, subtitle: subtitle ?? null, host_id })
       .select()
       .single()
 

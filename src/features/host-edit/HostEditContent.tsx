@@ -1,37 +1,57 @@
 "use client"
 
-import { useState } from "react"
-import { useRouter } from "next/navigation"
+import { useState, useEffect } from "react"
+import { useRouter, useParams } from "next/navigation"
 import { AnimatePresence, motion } from "framer-motion"
+import useSWR from "swr"
 import useSWRMutation from "swr/mutation"
-import { Button } from "@/components/button/Button"
-import { QuizEditor, type QuizForm } from "./QuizEditor"
-import type { Room } from "@/types/room"
+import { QuizEditor, type QuizForm } from "@/features/host-create/QuizEditor"
 import { QuizCard } from "@/components/quiz/QuizCard"
 import { QuizChoices } from "@/components/quiz/QuizChoices"
+import type { Room } from "@/types/room"
+import type { Quiz } from "@/types/quiz"
 
-type CreateRoomResponse = {
-  room: Room
-  host_id: string
-}
+const fetcher = (url: string) =>
+  fetch(url).then((res) => {
+    if (!res.ok) throw new Error("Fetch failed")
+    return res.json()
+  })
 
-type CreateRoomArgs = {
+type UpdateArgs = {
   title: string
   subtitle: string
   quizzes: (QuizForm & { order: number })[]
 }
 
-async function postRoom(url: string, { arg }: { arg: CreateRoomArgs }): Promise<CreateRoomResponse> {
-  const res = await fetch(url, {
-    method: "POST",
+async function putUpdate(
+  _url: string,
+  { arg }: { arg: UpdateArgs & { roomId: string } }
+) {
+  const { roomId, title, subtitle, quizzes } = arg
+
+  // Update room title + subtitle
+  const roomRes = await fetch(`/api/rooms/${roomId}`, {
+    method: "PATCH",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(arg),
+    body: JSON.stringify({ title, subtitle: subtitle || null }),
   })
-  if (!res.ok) {
-    const data = await res.json()
-    throw new Error(data.error ?? "Failed to create room")
+  if (!roomRes.ok) {
+    const d = await roomRes.json()
+    throw new Error(d.error ?? "Failed to update room")
   }
-  return res.json()
+
+  // Replace all quizzes
+  const quizRes = await fetch(`/api/quizzes`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ room_id: roomId, quizzes }),
+  })
+  if (!quizRes.ok) {
+    const d = await quizRes.json()
+    throw new Error(d.error ?? "Failed to update quizzes")
+  }
+
+  return roomRes.json()
 }
 
 const createEmptyQuiz = (): QuizForm => ({
@@ -41,15 +61,49 @@ const createEmptyQuiz = (): QuizForm => ({
   explanation: "",
 })
 
-export function HostCreateContent() {
+export function HostEditContent() {
   const router = useRouter()
+  const params = useParams()
+  const roomId = typeof params?.roomId === "string" ? params.roomId : ""
+
+  const { data: roomData, isLoading: roomLoading } = useSWR<{ room: Room }>(
+    roomId ? `/api/rooms/${roomId}` : null,
+    fetcher
+  )
+  const { data: quizzesData, isLoading: quizzesLoading } = useSWR<{ quizzes: Quiz[] }>(
+    roomId ? `/api/quizzes?roomId=${roomId}` : null,
+    fetcher
+  )
+
+  const isLoading = roomLoading || quizzesLoading
+
+  const [initialized, setInitialized] = useState(false)
   const [title, setTitle] = useState("")
   const [subtitle, setSubtitle] = useState("")
   const [quizzes, setQuizzes] = useState<QuizForm[]>([createEmptyQuiz()])
   const [errorMsg, setErrorMsg] = useState<string | null>(null)
   const [previewQuiz, setPreviewQuiz] = useState<QuizForm | null>(null)
 
-  const { trigger, isMutating } = useSWRMutation("/api/rooms", postRoom)
+  // Initialize state from fetched data (only once)
+  useEffect(() => {
+    if (!initialized && roomData && quizzesData) {
+      setTitle(roomData.room.title)
+      setSubtitle(roomData.room.subtitle ?? "")
+      setQuizzes(
+        quizzesData.quizzes.length > 0
+          ? quizzesData.quizzes.map((q) => ({
+              question: q.question,
+              choices: q.choices,
+              correct_index: q.correct_index,
+              explanation: q.explanation ?? "",
+            }))
+          : [createEmptyQuiz()]
+      )
+      setInitialized(true)
+    }
+  }, [initialized, roomData, quizzesData])
+
+  const { trigger, isMutating } = useSWRMutation("/api/edit", putUpdate)
 
   const handleAddQuiz = () => {
     setQuizzes((prev) => [...prev, createEmptyQuiz()])
@@ -77,23 +131,39 @@ export function HostCreateContent() {
     }
 
     try {
-      const result = await trigger({
+      await trigger({
+        roomId,
         title: title.trim(),
         subtitle: subtitle.trim(),
         quizzes: quizzes.map((q, i) => ({ ...q, order: i })),
       })
-      // ローカルストレージに hostId を保存
-      localStorage.setItem("hostId", result.host_id)
-      router.push(`/host/${result.room.id}/board?hostId=${result.host_id}`)
+      router.push(`/host/${roomId}/board`)
     } catch (err) {
       setErrorMsg(err instanceof Error ? err.message : "エラーが発生しました")
     }
   }
 
+  if (isLoading) {
+    return (
+      <div
+        className="min-h-screen font-serif text-white flex items-center justify-center"
+        style={{ background: "radial-gradient(ellipse at center, #450a0a 0%, #1a0303 100%)" }}
+      >
+        <motion.div
+          animate={{ opacity: [0.4, 1, 0.4] }}
+          transition={{ duration: 1.2, repeat: Infinity }}
+          className="text-yellow-500/60 text-sm uppercase tracking-widest font-bold"
+        >
+          Loading...
+        </motion.div>
+      </div>
+    )
+  }
+
   return (
     <div className="min-h-screen font-serif text-white relative">
       {/* Fixed Background */}
-      <div 
+      <div
         className="fixed inset-0 -z-10"
         style={{ background: "radial-gradient(ellipse at center, #450a0a 0%, #1a0303 100%)" }}
       />
@@ -109,11 +179,20 @@ export function HostCreateContent() {
           className="space-y-4 text-center"
         >
           <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-black/40 border border-yellow-600/50 shadow-[0_0_20px_rgba(234,179,8,0.2)] mb-2">
-            <span className="text-4xl">👑</span>
+            <span className="text-4xl">✏️</span>
           </div>
           <h1 className="text-4xl md:text-5xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-b from-yellow-200 via-yellow-400 to-yellow-700 drop-shadow-sm">
-            クイズ大会を作成
+            クイズ大会を編集
           </h1>
+          <motion.button
+            type="button"
+            onClick={() => router.push(`/host/${roomId}/board`)}
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            className="text-xs font-bold text-slate-400 hover:text-slate-300 uppercase tracking-widest px-4 py-2 rounded-lg border border-white/10 hover:border-white/20 transition-all"
+          >
+            ← 管理画面に戻る
+          </motion.button>
         </motion.div>
 
         <form onSubmit={handleSubmit} className="space-y-8">
@@ -229,7 +308,7 @@ export function HostCreateContent() {
                 "disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0",
               ].join(" ")}
             >
-              {isMutating ? "作成中..." : "大会を作成する"}
+              {isMutating ? "保存中..." : "変更を保存する"}
             </button>
           </motion.div>
         </form>
@@ -270,13 +349,12 @@ export function HostCreateContent() {
                       Preview Mode
                     </p>
                     <QuizChoices
-                      choices={previewQuiz.choices.map(c => c || "（選択肢）")}
-                      correctIndex={undefined} // プレビューでは正解を表示しない（出題中を想定）
+                      choices={previewQuiz.choices.map((c) => c || "（選択肢）")}
+                      correctIndex={undefined}
                       disabled={false}
                     />
                   </div>
-                  
-                  {/* Explanation Preview (Optional) */}
+
                   {previewQuiz.explanation && (
                     <div className="bg-indigo-900/40 backdrop-blur-md border border-indigo-500/30 rounded-xl p-4">
                       <p className="text-xs font-bold text-indigo-300 uppercase tracking-wider mb-2">
@@ -289,7 +367,7 @@ export function HostCreateContent() {
                   )}
                 </div>
               </div>
-              
+
               <button
                 onClick={() => setPreviewQuiz(null)}
                 className="absolute -top-12 right-0 md:-right-12 w-10 h-10 rounded-full bg-white/10 text-white flex items-center justify-center hover:bg-white/20 transition-colors"

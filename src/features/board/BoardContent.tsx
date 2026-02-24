@@ -1,12 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import useSWR from "swr";
 import { motion, AnimatePresence } from "framer-motion";
 import { createClient } from "@/lib/supabase/client";
 import { RoomProvider, useRoom } from "@/providers/RoomProvider";
-import { GameProvider } from "@/providers/GameProvider";
+import { GameProvider, useGame } from "@/providers/GameProvider";
 import { QuizCard } from "@/components/quiz/QuizCard";
 import { QuizExplanation } from "@/components/quiz/QuizExplanation";
 import { ParticipantBadge } from "@/components/badge/ParticipantBadge";
@@ -26,8 +26,13 @@ const fetcher = (url: string) =>
 // ── Inner board (needs RoomProvider context) ─────────────────────────────────
 function BoardInner({ roomId }: { roomId: string }) {
   const { phase, currentQuizIndex, participants } = useRoom();
+  const router = useRouter();
 
-  // Fetch quiz list
+  // Fetch room + quiz list
+  const { data: roomData } = useSWR<{ room: { title: string; subtitle: string | null } }>(
+    `/api/rooms/${roomId}`,
+    fetcher
+  );
   const { data } = useSWR<{ quizzes: Quiz[] }>(
     `/api/quizzes?roomId=${roomId}`,
     fetcher
@@ -39,6 +44,22 @@ function BoardInner({ roomId }: { roomId: string }) {
   const [answersMap, setAnswersMap] = useState<Map<string, number>>(new Map());
   const [showExplanation, setShowExplanation] = useState(false);
   const [showRanking, setShowRanking] = useState(false);
+  const [playUrl, setPlayUrl] = useState(`/play/${roomId}`);
+  const [copied, setCopied] = useState(false);
+
+  useEffect(() => {
+    setPlayUrl(`${window.location.origin}/play/${roomId}`);
+  }, [roomId]);
+
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(playUrl);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      // ignore
+    }
+  };
 
   // Reset answersMap when quiz changes
   useEffect(() => {
@@ -127,23 +148,64 @@ function BoardInner({ roomId }: { roomId: string }) {
                 animate={{ opacity: [0.5, 0.8, 0.5], scale: [1, 1.1, 1] }}
                 transition={{ duration: 4, repeat: Infinity }}
               />
-              <h1 className="relative text-7xl md:text-9xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-b from-yellow-200 via-yellow-400 to-yellow-700 drop-shadow-[0_4px_4px_rgba(0,0,0,0.5)]"
-                  style={{ textShadow: "0 2px 0 #713f12, 0 4px 0 #451a03, 0 10px 20px rgba(0,0,0,0.5)" }}>
-                格付<span className="text-white drop-shadow-[0_0_10px_rgba(255,255,255,0.8)]">王</span>
+              <h1 className="relative text-5xl md:text-7xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-b from-yellow-200 via-yellow-400 to-yellow-700 drop-shadow-[0_4px_4px_rgba(0,0,0,0.5)]">
+                {roomData?.room.title ?? (
+                  <span className="text-yellow-500/40 animate-pulse text-4xl">Loading...</span>
+                )}
               </h1>
             </div>
             
-            <div className="flex items-center justify-center gap-4">
-              <div className="h-px w-24 bg-gradient-to-r from-transparent via-yellow-500 to-transparent" />
-              <p className="text-yellow-100/80 text-xl font-medium tracking-[0.2em] uppercase font-sans">
-                Quiz King Check
-              </p>
-              <div className="h-px w-24 bg-gradient-to-r from-transparent via-yellow-500 to-transparent" />
-            </div>
+            {roomData?.room.subtitle && (
+              <div className="flex items-center justify-center gap-4">
+                <div className="h-px w-24 bg-gradient-to-r from-transparent via-yellow-500 to-transparent" />
+                <p className="text-yellow-100/80 text-xl font-medium tracking-[0.2em] uppercase font-sans">
+                  {roomData.room.subtitle}
+                </p>
+                <div className="h-px w-24 bg-gradient-to-r from-transparent via-yellow-500 to-transparent" />
+              </div>
+            )}
             
             <p className="text-white/90 text-2xl font-bold tracking-widest bg-black/20 py-2 px-8 rounded-full inline-block backdrop-blur-sm border border-white/10">
               参加者待機中...
             </p>
+          </motion.div>
+
+          {/* Invite URL */}
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="flex flex-col items-center gap-3"
+          >
+            <p className="text-xs text-yellow-500/60 uppercase tracking-widest font-bold">Invitation URL</p>
+            <div className="flex items-center gap-2 w-full max-w-lg">
+              <div className="flex-1 bg-black/40 border border-white/10 rounded-lg px-4 py-3 text-sm text-slate-300 font-mono truncate">
+                {playUrl}
+              </div>
+              <motion.button
+                type="button"
+                onClick={handleCopy}
+                whileTap={{ scale: 0.92 }}
+                whileHover={{ scale: 1.04 }}
+                className={[
+                  "flex-shrink-0 px-4 py-3 rounded-lg text-sm font-bold border transition-all uppercase tracking-wider",
+                  copied
+                    ? "bg-emerald-900/40 border-emerald-500/50 text-emerald-400"
+                    : "bg-yellow-600/20 border-yellow-600/40 text-yellow-200 hover:bg-yellow-600/30",
+                ].join(" ")}
+              >
+                {copied ? "Copied!" : "Copy"}
+              </motion.button>
+              <motion.button
+                type="button"
+                onClick={() => router.push(`/host/${roomId}/edit`)}
+                whileTap={{ scale: 0.92 }}
+                whileHover={{ scale: 1.04 }}
+                className="flex-shrink-0 px-4 py-3 rounded-lg text-sm font-bold border border-white/10 text-slate-400 hover:text-slate-200 hover:border-white/20 transition-all uppercase tracking-wider"
+              >
+                ✏️ Edit
+              </motion.button>
+            </div>
           </motion.div>
 
           {/* Participant list */}
@@ -191,6 +253,9 @@ function BoardInner({ roomId }: { roomId: string }) {
             </motion.div>
           )}
         </div>
+        
+        {/* Board Controller */}
+        <BoardController quizzes={quizzes} />
       </div>
     );
   }
@@ -302,6 +367,60 @@ function BoardInner({ roomId }: { roomId: string }) {
           </motion.div>
         )}
       </AnimatePresence>
+      
+      {/* Board Controller */}
+      <BoardController quizzes={quizzes} />
+    </div>
+  );
+}
+
+// ── Board Controller ─────────────────────────────────────────────────────────
+function BoardController({ quizzes }: { quizzes: Quiz[] }) {
+  const { nextPhase } = useGame();
+  const { phase, currentQuizIndex } = useRoom();
+  
+  const totalQuizzes = quizzes.length;
+  const isLastQuiz = currentQuizIndex >= totalQuizzes - 1;
+
+  if (phase === "result") return null;
+
+  return (
+    <div className="fixed bottom-4 right-4 z-50 flex flex-col items-end gap-2">
+      <div className="bg-slate-900/80 backdrop-blur-md border border-white/20 rounded-lg p-2 shadow-2xl opacity-40 hover:opacity-100 transition-all duration-300">
+        {phase === "waiting" && (
+          <button
+            onClick={() => nextPhase("question", 0)}
+            disabled={totalQuizzes === 0}
+            className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-bold rounded flex items-center gap-2 transition-colors"
+          >
+            <span>▶</span> START
+          </button>
+        )}
+
+        {phase === "question" && (
+          <button
+            onClick={() => nextPhase("reveal", currentQuizIndex)}
+            className="px-4 py-2 bg-amber-600 hover:bg-amber-500 text-white text-sm font-bold rounded flex items-center gap-2 transition-colors"
+          >
+            <span>🔓</span> REVEAL
+          </button>
+        )}
+
+        {phase === "reveal" && (
+          <button
+            onClick={() => {
+                if (isLastQuiz) {
+                    nextPhase("result", currentQuizIndex);
+                } else {
+                    nextPhase("question", currentQuizIndex + 1);
+                }
+            }}
+            className="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white text-sm font-bold rounded flex items-center gap-2 transition-colors"
+          >
+            <span>⏭</span> {isLastQuiz ? "RESULT" : "NEXT"}
+          </button>
+        )}
+      </div>
     </div>
   );
 }

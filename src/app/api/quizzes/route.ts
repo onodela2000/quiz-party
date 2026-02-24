@@ -87,3 +87,54 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
+
+interface ReplaceQuizzesBody {
+  room_id: string
+  quizzes: {
+    question: string
+    choices: string[]
+    correct_index: number
+    explanation: string
+    order: number
+  }[]
+}
+
+export async function PUT(request: NextRequest) {
+  try {
+    const body: ReplaceQuizzesBody = await request.json()
+    const { room_id, quizzes } = body
+
+    if (!room_id || !Array.isArray(quizzes)) {
+      return NextResponse.json(
+        { error: 'room_id and quizzes are required' },
+        { status: 400 }
+      )
+    }
+
+    const supabase = await createClient()
+
+    // Delete all existing quizzes for this room
+    const { error: deleteError } = await supabase
+      .from('quizzes')
+      .delete()
+      .eq('room_id', room_id)
+
+    if (deleteError) {
+      return NextResponse.json({ error: deleteError.message }, { status: 500 })
+    }
+
+    // Re-insert all quizzes
+    const { data: newQuizzes, error: insertError } = await supabase
+      .from('quizzes')
+      .insert(quizzes.map((q) => ({ ...q, room_id, image_url: null })))
+      .select()
+
+    if (insertError) {
+      return NextResponse.json({ error: insertError.message }, { status: 500 })
+    }
+
+    return NextResponse.json({ quizzes: (newQuizzes ?? []) as Quiz[] })
+  } catch {
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+  }
+}

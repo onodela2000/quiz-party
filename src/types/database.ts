@@ -106,6 +106,7 @@ export type Database = {
           host_id: string
           id: string
           status: string
+          subtitle: string | null
           title: string
         }
         Insert: {
@@ -114,6 +115,7 @@ export type Database = {
           host_id: string
           id?: string
           status?: string
+          subtitle?: string | null
           title: string
         }
         Update: {
@@ -122,6 +124,7 @@ export type Database = {
           host_id?: string
           id?: string
           status?: string
+          subtitle?: string | null
           title?: string
         }
         Relationships: []
