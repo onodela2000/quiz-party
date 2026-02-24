@@ -1,13 +1,16 @@
 "use client"
 
+import { useRef, useState } from "react"
 import { motion } from "framer-motion"
-import { Button } from "@/components/button/Button"
+import { uploadQuizImage } from "@/lib/upload-image"
 
 export type QuizForm = {
   question: string
   choices: string[]
   correct_index: number
   explanation: string
+  image_url?: string
+  explanation_image_url?: string
 }
 
 type Props = {
@@ -19,6 +22,77 @@ type Props = {
 }
 
 const CHOICE_LABELS = ["A", "B", "C", "D"] as const
+
+function ImageUpload({
+  label,
+  value,
+  onChange,
+}: {
+  label: string
+  value?: string
+  onChange: (url: string | undefined) => void
+}) {
+  const inputRef = useRef<HTMLInputElement>(null)
+  const [uploading, setUploading] = useState(false)
+
+  const handleFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    setUploading(true)
+    try {
+      const url = await uploadQuizImage(file)
+      onChange(url)
+    } catch {
+      alert("画像のアップロードに失敗しました")
+    } finally {
+      setUploading(false)
+      if (inputRef.current) inputRef.current.value = ""
+    }
+  }
+
+  return (
+    <div className="space-y-2">
+      <div className="flex items-center gap-2">
+        <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider">
+          {label}
+        </label>
+        {value && (
+          <button
+            type="button"
+            onClick={() => onChange(undefined)}
+            className="text-[10px] font-bold text-red-400 hover:text-red-300 uppercase tracking-wider px-2 py-0.5 rounded hover:bg-red-900/20 transition-colors"
+          >
+            削除
+          </button>
+        )}
+      </div>
+
+      {value ? (
+        <div className="relative rounded-lg overflow-hidden border border-white/10 bg-black/20">
+          <img src={value} alt="" className="w-full max-h-48 object-contain" />
+        </div>
+      ) : (
+        <button
+          type="button"
+          onClick={() => inputRef.current?.click()}
+          disabled={uploading}
+          className="w-full py-3 rounded-lg border border-dashed border-white/15 text-slate-500 hover:text-slate-400 hover:border-white/25 text-xs font-bold uppercase tracking-wider transition-colors disabled:opacity-50"
+        >
+          {uploading ? "アップロード中..." : "+ 画像を追加"}
+        </button>
+      )}
+
+      <input
+        ref={inputRef}
+        type="file"
+        accept="image/*"
+        onChange={handleFile}
+        className="hidden"
+      />
+    </div>
+  )
+}
 
 export function QuizEditor({ index, quiz, onChange, onRemove, onPreview }: Props) {
   const handleQuestion = (value: string) => {
@@ -85,6 +159,13 @@ export function QuizEditor({ index, quiz, onChange, onRemove, onPreview }: Props
         />
       </div>
 
+      {/* 問題画像 */}
+      <ImageUpload
+        label="問題画像"
+        value={quiz.image_url}
+        onChange={(url) => onChange({ ...quiz, image_url: url })}
+      />
+
       {/* 選択肢 */}
       <div className="space-y-3">
         <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider">選択肢 <span className="text-[10px] text-slate-500 ml-1">(左のボタンで正解を選択)</span></label>
@@ -127,6 +208,13 @@ export function QuizEditor({ index, quiz, onChange, onRemove, onPreview }: Props
           className="w-full rounded-lg bg-black/40 border border-white/10 focus:border-yellow-500/50 focus:outline-none text-white placeholder-slate-600 px-4 py-3 text-sm resize-y transition-colors font-sans"
         />
       </div>
+
+      {/* 解説画像 */}
+      <ImageUpload
+        label="解説画像"
+        value={quiz.explanation_image_url}
+        onChange={(url) => onChange({ ...quiz, explanation_image_url: url })}
+      />
     </motion.div>
   )
 }

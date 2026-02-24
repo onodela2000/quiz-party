@@ -70,7 +70,7 @@ export function AnswerGrid({
 
       {/* Grid of participants */}
       <motion.div
-        className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-8 gap-3"
+        className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-8 gap-3 mx-3"
         variants={containerVariants}
         initial="hidden"
         animate="visible"

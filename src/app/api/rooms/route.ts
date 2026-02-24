@@ -1,16 +1,23 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { createHash } from 'crypto'
 import { createClient } from '@/lib/supabase/server'
 import { Room } from '@/types/room'
+
+function hashPassword(password: string): string {
+  return createHash('sha256').update(password).digest('hex')
+}
 
 interface CreateRoomBody {
   title: string
   subtitle?: string
+  password: string
   quizzes: {
     question: string
     choices: string[]
     correct_index: number
     explanation: string
     image_url?: string
+    explanation_image_url?: string
     order: number
   }[]
 }
@@ -18,18 +25,22 @@ interface CreateRoomBody {
 export async function POST(request: NextRequest) {
   try {
     const body: CreateRoomBody = await request.json()
-    const { title, subtitle, quizzes } = body
+    const { title, subtitle, password, quizzes } = body
 
     if (!title) {
       return NextResponse.json({ error: 'title is required' }, { status: 400 })
     }
+    if (!password || password.length < 4) {
+      return NextResponse.json({ error: 'password must be at least 4 characters' }, { status: 400 })
+    }
 
     const supabase = await createClient()
     const host_id = crypto.randomUUID()
+    const host_password_hash = hashPassword(password)
 
     const { data: room, error: roomError } = await supabase
       .from('rooms')
-      .insert({ title, subtitle: subtitle ?? null, host_id })
+      .insert({ title, subtitle: subtitle ?? null, host_id, host_password_hash })
       .select()
       .single()
 
@@ -48,6 +59,7 @@ export async function POST(request: NextRequest) {
         correct_index: quiz.correct_index,
         explanation: quiz.explanation,
         image_url: quiz.image_url ?? null,
+        explanation_image_url: quiz.explanation_image_url ?? null,
         order: quiz.order,
       }))
 

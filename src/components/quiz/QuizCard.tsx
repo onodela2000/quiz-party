@@ -8,9 +8,10 @@ interface QuizCardProps {
   questionNumber: number;
   total: number;
   compact?: boolean;
+  imageUrl?: string | null;
 }
 
-export function QuizCard({ question, questionNumber, total, compact }: QuizCardProps) {
+export function QuizCard({ question, questionNumber, total, compact, imageUrl }: QuizCardProps) {
   return (
     <motion.div
       key={questionNumber}
@@ -58,6 +59,18 @@ export function QuizCard({ question, questionNumber, total, compact }: QuizCardP
         <QuizMarkdown content={question} />
       </motion.div>
       
+      {/* Question image */}
+      {imageUrl && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.25 }}
+          className={`relative z-10 flex justify-center ${compact ? 'mt-4' : 'mt-6'}`}
+        >
+          <img src={imageUrl} alt="" className="max-h-64 rounded-lg shadow-md object-contain" />
+        </motion.div>
+      )}
+
       {/* Decorative bottom element */}
       <div className={`flex justify-center relative z-10 ${compact ? 'mt-4' : 'mt-8'}`}>
         <div className="w-24 h-1 bg-gradient-to-r from-transparent via-yellow-600/40 to-transparent" />

@@ -281,6 +281,7 @@ function BoardInner({ roomId }: { roomId: string }) {
                 questionNumber={currentQuizIndex + 1}
                 total={quizzes.length}
                 compact={false}
+                imageUrl={currentQuiz.image_url}
               />
               
               {/* Explanation Button (Reveal Phase Only) */}
@@ -355,7 +356,7 @@ function BoardInner({ roomId }: { roomId: string }) {
               onClick={(e) => e.stopPropagation()}
               className="w-full max-w-3xl max-h-[85vh] overflow-y-auto relative"
             >
-              <QuizExplanation explanation={currentQuiz.explanation} />
+              <QuizExplanation explanation={currentQuiz.explanation} imageUrl={currentQuiz.explanation_image_url} />
               
               <button
                 onClick={() => setShowExplanation(false)}

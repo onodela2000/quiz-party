@@ -71,6 +71,7 @@ export type Database = {
           choices: Json
           correct_index: number
           explanation: string
+          explanation_image_url: string | null
           id: string
           image_url: string | null
           order: number
@@ -81,6 +82,7 @@ export type Database = {
           choices: Json
           correct_index: number
           explanation?: string
+          explanation_image_url?: string | null
           id?: string
           image_url?: string | null
           order?: number
@@ -91,6 +93,7 @@ export type Database = {
           choices?: Json
           correct_index?: number
           explanation?: string
+          explanation_image_url?: string | null
           id?: string
           image_url?: string | null
           order?: number
@@ -104,6 +107,7 @@ export type Database = {
           created_at: string
           current_quiz_index: number
           host_id: string
+          host_password_hash: string | null
           id: string
           status: string
           subtitle: string | null
@@ -113,6 +117,7 @@ export type Database = {
           created_at?: string
           current_quiz_index?: number
           host_id: string
+          host_password_hash?: string | null
           id?: string
           status?: string
           subtitle?: string | null
@@ -122,6 +127,7 @@ export type Database = {
           created_at?: string
           current_quiz_index?: number
           host_id?: string
+          host_password_hash?: string | null
           id?: string
           status?: string
           subtitle?: string | null

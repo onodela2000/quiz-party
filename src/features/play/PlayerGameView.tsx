@@ -165,6 +165,7 @@ export function PlayerGameView({ title }: { title: string }) {
                   question={currentQuiz.question}
                   questionNumber={currentQuizIndex + 1}
                   total={totalQuizzes}
+                  imageUrl={currentQuiz.image_url}
                 />
               </div>
 
@@ -199,11 +200,12 @@ export function PlayerGameView({ title }: { title: string }) {
                   question={currentQuiz.question}
                   questionNumber={currentQuizIndex + 1}
                   total={totalQuizzes}
+                  imageUrl={currentQuiz.image_url}
                 />
                 
                 {/* Mobile only explanation position */}
                 <div className="lg:hidden">
-                  <QuizExplanation explanation={currentQuiz.explanation} />
+                  <QuizExplanation explanation={currentQuiz.explanation} imageUrl={currentQuiz.explanation_image_url} />
                 </div>
               </div>
 
@@ -224,7 +226,7 @@ export function PlayerGameView({ title }: { title: string }) {
 
                 {/* Desktop only explanation position */}
                 <div className="hidden lg:block">
-                  <QuizExplanation explanation={currentQuiz.explanation} />
+                  <QuizExplanation explanation={currentQuiz.explanation} imageUrl={currentQuiz.explanation_image_url} />
                 </div>
 
                 {enrichedAnswers.length > 0 && (

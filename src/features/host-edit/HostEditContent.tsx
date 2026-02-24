@@ -96,6 +96,8 @@ export function HostEditContent() {
               choices: q.choices,
               correct_index: q.correct_index,
               explanation: q.explanation ?? "",
+              image_url: q.image_url ?? undefined,
+              explanation_image_url: q.explanation_image_url ?? undefined,
             }))
           : [createEmptyQuiz()]
       )

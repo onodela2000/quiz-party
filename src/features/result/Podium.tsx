@@ -177,7 +177,7 @@ export function Podium({ participants }: PodiumProps) {
                 animate={{ scale: 1 }}
                 transition={{ delay: config.delay + 0.2, type: "spring", stiffness: 260, damping: 20 }}
                 className={[
-                  "flex items-center justify-center rounded-full border-4 shadow-2xl relative z-10",
+                  "flex items-center justify-center rounded-2xl border-4 shadow-2xl relative z-10",
                   config.badgeSize,
                   config.glow,
                   rankIndex === 0

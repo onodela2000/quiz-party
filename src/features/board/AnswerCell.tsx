@@ -40,11 +40,7 @@ export function AnswerCell({
       animate={
         revealed
           ? isCorrect
-            ? {
-                opacity: 1,
-                scale: 1.15,
-                zIndex: 20,
-              }
+            ? { opacity: 1, scale: 1 }
             : isWrong || notAnswered
             ? { opacity: 0.4, scale: 0.85, filter: "grayscale(100%)" }
             : { opacity: 1, scale: 1 }

@@ -4,11 +4,11 @@ import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { AnimatePresence, motion } from "framer-motion"
 import useSWRMutation from "swr/mutation"
-import { Button } from "@/components/button/Button"
 import { QuizEditor, type QuizForm } from "./QuizEditor"
 import type { Room } from "@/types/room"
 import { QuizCard } from "@/components/quiz/QuizCard"
 import { QuizChoices } from "@/components/quiz/QuizChoices"
+import { setHostToken } from "@/lib/host-token"
 
 type CreateRoomResponse = {
   room: Room
@@ -18,6 +18,7 @@ type CreateRoomResponse = {
 type CreateRoomArgs = {
   title: string
   subtitle: string
+  password: string
   quizzes: (QuizForm & { order: number })[]
 }
 
@@ -45,6 +46,7 @@ export function HostCreateContent() {
   const router = useRouter()
   const [title, setTitle] = useState("")
   const [subtitle, setSubtitle] = useState("")
+  const [password, setPassword] = useState("")
   const [quizzes, setQuizzes] = useState<QuizForm[]>([createEmptyQuiz()])
   const [errorMsg, setErrorMsg] = useState<string | null>(null)
   const [previewQuiz, setPreviewQuiz] = useState<QuizForm | null>(null)
@@ -71,6 +73,10 @@ export function HostCreateContent() {
       setErrorMsg("タイトルを入力してください")
       return
     }
+    if (!password || password.length < 4) {
+      setErrorMsg("パスワードは4文字以上で入力してください")
+      return
+    }
     if (quizzes.length === 0) {
       setErrorMsg("クイズを1問以上登録してください")
       return
@@ -80,11 +86,11 @@ export function HostCreateContent() {
       const result = await trigger({
         title: title.trim(),
         subtitle: subtitle.trim(),
+        password,
         quizzes: quizzes.map((q, i) => ({ ...q, order: i })),
       })
-      // ローカルストレージに hostId を保存
-      localStorage.setItem("hostId", result.host_id)
-      router.push(`/host/${result.room.id}/board?hostId=${result.host_id}`)
+      setHostToken(result.room.id, result.host_id)
+      router.push(`/host/${result.room.id}/board`)
     } catch (err) {
       setErrorMsg(err instanceof Error ? err.message : "エラーが発生しました")
     }
@@ -153,6 +159,26 @@ export function HostCreateContent() {
               value={subtitle}
               onChange={(e) => setSubtitle(e.target.value)}
               placeholder="例: Quiz King Check"
+              className="w-full px-6 py-4 rounded-xl bg-black/40 border border-yellow-600/30 focus:border-yellow-500/70 focus:outline-none text-white placeholder-slate-500 text-lg shadow-inner transition-all duration-200 font-sans"
+            />
+          </motion.div>
+
+          {/* パスワード入力 */}
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, delay: 0.2 }}
+            className="space-y-3"
+          >
+            <label htmlFor="password" className="block text-xs font-bold text-yellow-500/80 uppercase tracking-wider">
+              管理者パスワード <span className="text-red-500">*</span>
+            </label>
+            <input
+              id="password"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="4文字以上（管理画面アクセス用）"
               className="w-full px-6 py-4 rounded-xl bg-black/40 border border-yellow-600/30 focus:border-yellow-500/70 focus:outline-none text-white placeholder-slate-500 text-lg shadow-inner transition-all duration-200 font-sans"
             />
           </motion.div>
@@ -260,6 +286,7 @@ export function HostCreateContent() {
                     questionNumber={1}
                     total={1}
                     compact={false}
+                    imageUrl={previewQuiz.image_url}
                   />
                 </div>
 

@@ -5,9 +5,10 @@ import { QuizMarkdown } from "@/components/markdown/QuizMarkdown";
 
 interface QuizExplanationProps {
   explanation: string;
+  imageUrl?: string | null;
 }
 
-export function QuizExplanation({ explanation }: QuizExplanationProps) {
+export function QuizExplanation({ explanation, imageUrl }: QuizExplanationProps) {
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.9, y: 20 }}
@@ -50,6 +51,13 @@ export function QuizExplanation({ explanation }: QuizExplanationProps) {
       <div className="text-lg md:text-xl text-slate-900 leading-relaxed font-medium font-serif relative z-10">
         <QuizMarkdown content={explanation} />
       </div>
+
+      {/* Explanation image */}
+      {imageUrl && (
+        <div className="flex justify-center mt-6 relative z-10">
+          <img src={imageUrl} alt="" className="max-h-64 rounded-lg shadow-md object-contain" />
+        </div>
+      )}
     </motion.div>
   );
 }

@@ -95,6 +95,8 @@ interface ReplaceQuizzesBody {
     choices: string[]
     correct_index: number
     explanation: string
+    image_url?: string
+    explanation_image_url?: string
     order: number
   }[]
 }
@@ -126,7 +128,12 @@ export async function PUT(request: NextRequest) {
     // Re-insert all quizzes
     const { data: newQuizzes, error: insertError } = await supabase
       .from('quizzes')
-      .insert(quizzes.map((q) => ({ ...q, room_id, image_url: null })))
+      .insert(quizzes.map((q) => ({
+        ...q,
+        room_id,
+        image_url: q.image_url ?? null,
+        explanation_image_url: q.explanation_image_url ?? null,
+      })))
       .select()
 
     if (insertError) {
