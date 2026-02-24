@@ -86,36 +86,6 @@ export function AnswerGrid({
           </motion.div>
         ))}
       </motion.div>
-
-      {/* Revealed result banner */}
-      {revealed && (
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4, duration: 0.45 }}
-          className={[
-            "flex items-center justify-center gap-4 py-6 px-8 rounded-lg",
-            "bg-gradient-to-r from-transparent via-red-900/80 to-transparent",
-            "border-y border-red-500/30",
-            "relative overflow-hidden"
-          ].join(" ")}
-        >
-          <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/diagmonds-light.png')] opacity-20" />
-          
-          <span className="text-yellow-500 text-3xl">✦</span>
-          <div className="flex flex-col items-center">
-            <span className="text-xs font-serif text-red-300 tracking-[0.3em] uppercase mb-1">Winners</span>
-            <span className="text-2xl font-black text-white font-serif tracking-widest">
-              正解者 <span className="text-4xl text-yellow-400 mx-2">{
-                participants.filter(
-                  (p) => answersMap.get(p.id) === correctIndex
-                ).length
-              }</span> 名
-            </span>
-          </div>
-          <span className="text-yellow-500 text-3xl">✦</span>
-        </motion.div>
-      )}
     </div>
   );
 }
