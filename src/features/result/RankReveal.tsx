@@ -11,35 +11,35 @@ interface RankRevealProps {
 
 const RANK_COLORS: Record<number, { badge: string; name: string; score: string; border: string; glow: string }> = {
   1: {
-    badge: "bg-yellow-500/25 border-yellow-400/70 text-yellow-300",
-    name: "text-yellow-200",
-    score: "text-yellow-300",
-    border: "border-yellow-500/50",
-    glow: "shadow-[0_0_28px_rgba(234,179,8,0.35)]",
+    badge: "bg-yellow-100 border-yellow-400 text-yellow-700",
+    name: "text-yellow-700",
+    score: "text-yellow-600",
+    border: "border-yellow-400/50",
+    glow: "shadow-[0_0_28px_rgba(234,179,8,0.25)]",
   },
   2: {
-    badge: "bg-slate-500/25 border-slate-400/70 text-slate-300",
-    name: "text-slate-200",
-    score: "text-slate-300",
-    border: "border-slate-500/50",
-    glow: "shadow-[0_0_20px_rgba(148,163,184,0.25)]",
+    badge: "bg-slate-100 border-slate-400 text-slate-600",
+    name: "text-slate-700",
+    score: "text-slate-600",
+    border: "border-slate-300",
+    glow: "shadow-[0_0_20px_rgba(148,163,184,0.2)]",
   },
   3: {
-    badge: "bg-amber-800/25 border-amber-600/70 text-amber-500",
-    name: "text-amber-300",
-    score: "text-amber-500",
-    border: "border-amber-700/50",
-    glow: "shadow-[0_0_20px_rgba(217,119,6,0.25)]",
+    badge: "bg-amber-100 border-amber-500 text-amber-700",
+    name: "text-amber-700",
+    score: "text-amber-600",
+    border: "border-amber-400/50",
+    glow: "shadow-[0_0_20px_rgba(217,119,6,0.2)]",
   },
 };
 
 function getRankStyle(rank: number) {
   return (
     RANK_COLORS[rank] ?? {
-      badge: "bg-white/10 border-white/20 text-white/60",
-      name: "text-white/80",
-      score: "text-cyan-400",
-      border: "border-white/10",
+      badge: "bg-slate-100 border-slate-300 text-slate-600",
+      name: "text-slate-700",
+      score: "text-cyan-600",
+      border: "border-slate-200",
       glow: "",
     }
   );
@@ -70,7 +70,7 @@ function RankCard({
       }}
       className={[
         "flex items-center gap-5 px-5 py-4 rounded-2xl border",
-        "bg-gradient-to-r from-white/[0.05] to-transparent",
+        "bg-gradient-to-r from-slate-50 to-white",
         style.border,
         style.glow,
       ].join(" ")}
@@ -108,7 +108,7 @@ function RankCard({
         >
           {participant.score.toLocaleString()}
         </motion.p>
-        <p className="text-xs text-white/30 font-semibold">points</p>
+        <p className="text-xs text-slate-400 font-semibold">points</p>
       </div>
     </motion.div>
   );
@@ -200,7 +200,7 @@ export function RankReveal({ participants, totalToReveal = 3 }: RankRevealProps)
           className="flex items-center justify-center gap-2 py-3"
         >
           <span className="text-yellow-400 text-xl">★</span>
-          <span className="text-sm font-bold text-white/50 uppercase tracking-widest">
+          <span className="text-sm font-bold text-slate-500 uppercase tracking-widest">
             結果発表 完了
           </span>
           <span className="text-yellow-400 text-xl">★</span>

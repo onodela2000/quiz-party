@@ -18,7 +18,7 @@ export function ResultScreen({ participants }: ResultScreenProps) {
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.5 }}
-      className="min-h-screen w-full bg-[#0a0a0a] relative overflow-hidden"
+      className="min-h-screen w-full bg-white relative overflow-hidden"
     >
       {/* Background gradient orbs */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">

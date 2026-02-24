@@ -85,7 +85,7 @@ export function HostCreateContent() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] text-white px-4 py-12">
+    <div className="min-h-screen bg-slate-50 text-slate-900 px-4 py-12">
       <div className="max-w-2xl mx-auto space-y-8">
         {/* ページタイトル */}
         <motion.div
@@ -97,7 +97,7 @@ export function HostCreateContent() {
           <h1 className="text-3xl font-bold tracking-tight">
             <span className="text-indigo-400">選手権</span>を作成
           </h1>
-          <p className="text-white/50 text-sm">
+          <p className="text-slate-500 text-sm">
             タイトルとクイズを設定して選手権を始めましょう。
           </p>
         </motion.div>
@@ -110,8 +110,8 @@ export function HostCreateContent() {
             transition={{ duration: 0.4, delay: 0.1 }}
             className="space-y-2"
           >
-            <label htmlFor="title" className="block text-sm font-medium text-white/70">
-              選手権タイトル <span className="text-red-400">*</span>
+            <label htmlFor="title" className="block text-sm font-medium text-slate-600">
+              選手権タイトル <span className="text-red-500">*</span>
             </label>
             <input
               id="title"
@@ -119,14 +119,14 @@ export function HostCreateContent() {
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="例: 第1回 プログラミング王決定戦"
-              className="w-full rounded-xl bg-white/5 border border-white/10 focus:border-indigo-500 focus:outline-none text-white placeholder-white/20 px-4 py-3 text-base transition-colors"
+              className="w-full rounded-xl bg-white border border-slate-200 focus:border-indigo-500 focus:outline-none text-slate-900 placeholder-slate-400 px-4 py-3 text-base transition-colors"
             />
           </motion.div>
 
           {/* クイズリスト */}
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <h2 className="text-sm font-semibold text-white/70 uppercase tracking-wider">
+              <h2 className="text-sm font-semibold text-slate-600 uppercase tracking-wider">
                 クイズ ({quizzes.length}問)
               </h2>
             </div>

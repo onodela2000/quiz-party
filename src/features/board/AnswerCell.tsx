@@ -6,10 +6,10 @@ import type { Participant } from "@/types/room";
 const CHOICE_LABELS = ["A", "B", "C", "D"] as const;
 
 const LABEL_COLORS = [
-  "text-cyan-300 bg-cyan-500/20 border-cyan-500/50",
-  "text-lime-300 bg-lime-500/20 border-lime-500/50",
-  "text-amber-300 bg-amber-500/20 border-amber-500/50",
-  "text-fuchsia-300 bg-fuchsia-500/20 border-fuchsia-500/50",
+  "text-blue-900 bg-gradient-to-br from-blue-200 to-blue-400 border-blue-500 shadow-lg",
+  "text-red-900 bg-gradient-to-br from-red-200 to-red-400 border-red-500 shadow-lg",
+  "text-green-900 bg-gradient-to-br from-green-200 to-green-400 border-green-500 shadow-lg",
+  "text-yellow-900 bg-gradient-to-br from-yellow-200 to-yellow-400 border-yellow-500 shadow-lg",
 ] as const;
 
 interface AnswerCellProps {
@@ -41,82 +41,81 @@ export function AnswerCell({
           ? isCorrect
             ? {
                 opacity: 1,
-                scale: 1.05,
-                backgroundColor: "rgba(239,68,68,0.15)",
-                boxShadow: "0 0 28px rgba(239,68,68,0.55), 0 0 8px rgba(239,68,68,0.35)",
+                scale: 1.15,
+                zIndex: 20,
               }
             : isWrong || notAnswered
-            ? { opacity: 0.2, scale: 0.95, backgroundColor: "rgba(0,0,0,0.3)" }
+            ? { opacity: 0.4, scale: 0.85, filter: "grayscale(100%)" }
             : { opacity: 1, scale: 1 }
           : { opacity: 1, scale: 1 }
       }
-      transition={{ type: "spring", stiffness: 220, damping: 22, delay: 0.05 }}
-      className={[
-        "flex flex-col items-center gap-2 p-3 rounded-2xl border",
-        "bg-white/[0.04] border-white/10",
-        "relative overflow-hidden",
-      ].join(" ")}
+      transition={{ type: "spring", stiffness: 220, damping: 22 }}
+      className="relative group"
     >
-      {/* Correct glow overlay */}
-      {isCorrect && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="absolute inset-0 rounded-2xl bg-red-500/10 pointer-events-none"
-        />
-      )}
+      {/* Frame container */}
+      <div className={[
+        "flex flex-col items-center gap-2 p-3 pb-4 rounded-lg border-4 transition-all duration-500",
+        isCorrect 
+          ? "bg-gradient-to-b from-yellow-100 to-white border-yellow-500 shadow-[0_0_30px_rgba(234,179,8,0.6)]" 
+          : "bg-[#1a1a1a] border-[#333] shadow-md",
+      ].join(" ")}>
+        
+        {/* Decorative corner accents for correct answer */}
+        {isCorrect && (
+          <>
+            <div className="absolute -top-2 -left-2 w-6 h-6 border-t-4 border-l-4 border-yellow-600 rounded-tl-lg" />
+            <div className="absolute -top-2 -right-2 w-6 h-6 border-t-4 border-r-4 border-yellow-600 rounded-tr-lg" />
+            <div className="absolute -bottom-2 -left-2 w-6 h-6 border-b-4 border-l-4 border-yellow-600 rounded-bl-lg" />
+            <div className="absolute -bottom-2 -right-2 w-6 h-6 border-b-4 border-r-4 border-yellow-600 rounded-br-lg" />
+          </>
+        )}
 
-      {/* Icon */}
-      <span className="text-3xl leading-none select-none">{participant.icon}</span>
+        {/* Icon */}
+        <div className="relative">
+          <span className="text-4xl leading-none select-none filter drop-shadow-md">{participant.icon}</span>
+          {isCorrect && (
+            <motion.div
+              initial={{ scale: 0, rotate: -180 }}
+              animate={{ scale: 1, rotate: 0 }}
+              className="absolute -top-4 -right-4 text-2xl drop-shadow-md"
+            >
+              👑
+            </motion.div>
+          )}
+        </div>
 
-      {/* Name */}
-      <span className="text-xs font-bold text-white/80 truncate max-w-full text-center leading-tight">
-        {participant.name}
-      </span>
+        {/* Name */}
+        <span className={[
+          "text-xs font-bold truncate max-w-full text-center leading-tight tracking-wide font-serif",
+          isCorrect ? "text-yellow-900" : "text-gray-400"
+        ].join(" ")}>
+          {participant.name}
+        </span>
 
-      {/* Choice badge or pending indicator */}
-      {hasAnswered ? (
-        <motion.span
-          initial={{ scale: 0.5, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          transition={{ type: "spring", stiffness: 350, damping: 22 }}
-          className={[
-            "flex items-center justify-center w-7 h-7 rounded-lg border text-xs font-black",
-            LABEL_COLORS[choiceIndex % LABEL_COLORS.length],
-          ].join(" ")}
-        >
-          {CHOICE_LABELS[choiceIndex % CHOICE_LABELS.length]}
-        </motion.span>
-      ) : (
-        <motion.span
-          animate={!revealed ? { opacity: [0.3, 1, 0.3] } : { opacity: 0.3 }}
-          transition={{ duration: 1.4, repeat: Infinity, ease: "easeInOut" }}
-          className="flex items-center justify-center w-7 h-7 rounded-lg border border-white/20 text-white/30 text-xs font-bold"
-        >
-          ?
-        </motion.span>
-      )}
-
-      {/* Correct star badge */}
-      {isCorrect && (
-        <motion.span
-          initial={{ scale: 0, rotate: -20 }}
-          animate={{ scale: 1, rotate: 0 }}
-          transition={{ type: "spring", stiffness: 400, damping: 18, delay: 0.15 }}
-          className="absolute -top-1 -right-1 text-base"
-        >
-          ★
-        </motion.span>
-      )}
-
-      {/* Pulse ring when answered but not yet revealed */}
-      {!revealed && hasAnswered && (
-        <motion.div
-          className="absolute inset-0 rounded-2xl border border-cyan-400/50 pointer-events-none"
-          animate={{ opacity: [0.6, 0], scale: [1, 1.06] }}
-          transition={{ duration: 1.2, repeat: Infinity, ease: "easeOut" }}
-        />
-      )}
+        {/* Choice badge */}
+        <div className="absolute -bottom-3 left-1/2 -translate-x-1/2">
+          {hasAnswered ? (
+            <motion.div
+              initial={{ scale: 0, y: 10 }}
+              animate={{ scale: 1, y: 0 }}
+              className={[
+                "flex items-center justify-center w-8 h-8 rounded-full border-2 text-sm font-black font-serif shadow-lg",
+                LABEL_COLORS[choiceIndex % LABEL_COLORS.length],
+              ].join(" ")}
+            >
+              {CHOICE_LABELS[choiceIndex % CHOICE_LABELS.length]}
+            </motion.div>
+          ) : (
+            <motion.div
+              animate={{ y: [0, -4, 0] }}
+              transition={{ duration: 2, repeat: Infinity }}
+              className="flex items-center justify-center w-8 h-8 rounded-full border-2 border-gray-600 bg-gray-800 text-gray-400 text-sm font-bold font-serif"
+            >
+              ?
+            </motion.div>
+          )}
+        </div>
+      </div>
     </motion.div>
   );
 }

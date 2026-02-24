@@ -54,7 +54,7 @@ const PODIUM_CONFIG = [
     height: "h-36",
     delay: 0.5,
     label: "1st",
-    labelColor: "text-yellow-300",
+    labelColor: "text-yellow-600",
     glow: "shadow-[0_0_40px_rgba(234,179,8,0.6),0_0_80px_rgba(234,179,8,0.25)]",
     bg: "bg-gradient-to-b from-yellow-500/30 to-yellow-700/20 border-yellow-500/60",
     crown: true,
@@ -70,7 +70,7 @@ const PODIUM_CONFIG = [
     height: "h-24",
     delay: 0.2,
     label: "2nd",
-    labelColor: "text-slate-300",
+    labelColor: "text-slate-600",
     glow: "shadow-[0_0_24px_rgba(148,163,184,0.4)]",
     bg: "bg-gradient-to-b from-slate-500/25 to-slate-700/15 border-slate-400/50",
     crown: false,
@@ -125,10 +125,10 @@ export function Podium({ participants }: PodiumProps) {
         initial={{ opacity: 0, y: -24 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, type: "spring", stiffness: 200 }}
-        className="relative z-10 text-3xl md:text-5xl font-black tracking-tight text-white mb-10"
+        className="relative z-10 text-3xl md:text-5xl font-black tracking-tight text-slate-900 mb-10"
       >
-        <span className="text-yellow-400">RESULT</span>
-        <span className="text-white/30 text-xl ml-3">— Top 3 —</span>
+        <span className="text-yellow-500">RESULT</span>
+        <span className="text-slate-400 text-xl ml-3">— Top 3 —</span>
       </motion.h2>
 
       {/* Podium stage */}
@@ -185,7 +185,7 @@ export function Podium({ participants }: PodiumProps) {
 
               {/* Name */}
               <span
-                className={`font-black text-white text-center leading-tight ${config.nameSize}`}
+                className={`font-black text-slate-900 text-center leading-tight ${config.nameSize}`}
               >
                 {participant.name}
               </span>
@@ -198,7 +198,7 @@ export function Podium({ participants }: PodiumProps) {
                 className={`font-black tabular-nums ${config.scoreSize} ${config.labelColor}`}
               >
                 {participant.score.toLocaleString()}
-                <span className="text-xs font-semibold text-white/40 ml-1">pt</span>
+                <span className="text-xs font-semibold text-slate-400 ml-1">pt</span>
               </motion.span>
 
               {/* Podium block */}

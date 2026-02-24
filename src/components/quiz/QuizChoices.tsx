@@ -13,18 +13,10 @@ interface QuizChoicesProps {
 const LABELS = ["A", "B", "C", "D"] as const;
 
 const LABEL_COLORS = [
-  { base: "text-cyan-300", bg: "bg-cyan-500/20", border: "border-cyan-500/50" },
-  { base: "text-lime-300", bg: "bg-lime-500/20", border: "border-lime-500/50" },
-  {
-    base: "text-amber-300",
-    bg: "bg-amber-500/20",
-    border: "border-amber-500/50",
-  },
-  {
-    base: "text-fuchsia-300",
-    bg: "bg-fuchsia-500/20",
-    border: "border-fuchsia-500/50",
-  },
+  { base: "text-blue-200", bg: "bg-gradient-to-br from-blue-900 to-blue-950", border: "border-blue-500/50", shadow: "shadow-blue-900/20" },
+  { base: "text-red-200", bg: "bg-gradient-to-br from-red-900 to-red-950", border: "border-red-500/50", shadow: "shadow-red-900/20" },
+  { base: "text-green-200", bg: "bg-gradient-to-br from-green-900 to-green-950", border: "border-green-500/50", shadow: "shadow-green-900/20" },
+  { base: "text-yellow-200", bg: "bg-gradient-to-br from-yellow-900 to-yellow-950", border: "border-yellow-500/50", shadow: "shadow-yellow-900/20" },
 ] as const;
 
 function getChoiceStyle(
@@ -33,26 +25,26 @@ function getChoiceStyle(
   correctIndex: number | undefined
 ): string {
   const base =
-    "relative flex items-center gap-4 w-full px-5 py-4 rounded-xl border text-left transition-colors duration-200 cursor-pointer disabled:cursor-not-allowed";
+    "relative flex items-center gap-4 w-full px-5 py-5 rounded-xl border-2 text-left transition-all duration-200 cursor-pointer disabled:cursor-not-allowed font-serif shadow-lg active:scale-[0.98]";
 
   // After reveal
   if (correctIndex !== undefined) {
     if (index === correctIndex) {
-      return `${base} bg-green-500/20 border-green-400/70 shadow-[0_0_16px_rgba(34,197,94,0.3)]`;
+      return `${base} bg-gradient-to-r from-red-900 via-red-800 to-red-900 border-yellow-500 shadow-[0_0_30px_rgba(234,179,8,0.4)] z-10`;
     }
     if (index === selectedIndex) {
-      return `${base} bg-white/5 border-white/10 opacity-50`;
+      return `${base} bg-slate-900/80 border-slate-700 opacity-50 grayscale`;
     }
-    return `${base} bg-white/[0.02] border-white/5 opacity-30`;
+    return `${base} bg-slate-900/60 border-slate-800 opacity-30 grayscale`;
   }
 
   // Selected (before reveal)
   if (index === selectedIndex) {
-    return `${base} bg-indigo-500/30 border-indigo-400/80 shadow-[0_0_16px_rgba(99,102,241,0.35)]`;
+    return `${base} bg-gradient-to-r from-yellow-900/80 to-yellow-800/80 border-yellow-500 shadow-[0_0_20px_rgba(234,179,8,0.3)] scale-105 z-10`;
   }
 
   // Default
-  return `${base} bg-white/[0.04] border-white/10 hover:bg-white/[0.08] hover:border-white/25`;
+  return `${base} bg-black/40 border-white/10 hover:bg-white/5 hover:border-white/20 hover:shadow-[0_0_15px_rgba(255,255,255,0.1)]`;
 }
 
 const containerVariants = {
@@ -78,7 +70,7 @@ export function QuizChoices({
 }: QuizChoicesProps) {
   return (
     <motion.div
-      className="grid grid-cols-1 md:grid-cols-2 gap-3"
+      className="grid grid-cols-1 gap-3"
       variants={containerVariants}
       initial="hidden"
       animate="visible"
@@ -97,11 +89,10 @@ export function QuizChoices({
               {/* Label badge */}
               <span
                 className={[
-                  "flex-shrink-0 w-9 h-9 rounded-lg flex items-center justify-center",
-                  "text-sm font-black",
+                  "flex-shrink-0 w-10 h-10 rounded-lg flex items-center justify-center",
+                  "text-lg font-black font-serif shadow-inner border",
                   labelColor.bg,
                   labelColor.border,
-                  "border",
                   labelColor.base,
                 ].join(" ")}
               >
@@ -109,19 +100,22 @@ export function QuizChoices({
               </span>
 
               {/* Choice text */}
-              <span className="flex-1 text-base md:text-lg font-semibold text-white leading-snug">
+              <span className={[
+                "flex-1 text-lg md:text-xl font-bold leading-snug tracking-wide",
+                correctIndex !== undefined && index === correctIndex ? "text-yellow-100" : "text-slate-200"
+              ].join(" ")}>
                 {choice}
               </span>
 
               {/* Correct indicator */}
               {isCorrect && (
                 <motion.span
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
+                  initial={{ scale: 0, rotate: -180 }}
+                  animate={{ scale: 1, rotate: 0 }}
                   transition={{ type: "spring", stiffness: 400, damping: 20 }}
-                  className="flex-shrink-0 text-green-400 text-2xl"
+                  className="flex-shrink-0 text-3xl filter drop-shadow-[0_0_10px_rgba(234,179,8,0.8)]"
                 >
-                  ✓
+                  👑
                 </motion.span>
               )}
             </button>

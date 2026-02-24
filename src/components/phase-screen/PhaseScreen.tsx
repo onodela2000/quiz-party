@@ -23,7 +23,7 @@ function WaitingScreen() {
       initial="initial"
       animate="animate"
       exit="exit"
-      className="flex flex-col items-center justify-center min-h-screen bg-[#0a0a0a] select-none"
+      className="flex flex-col items-center justify-center min-h-screen bg-white select-none"
     >
       {/* Animated glow orb */}
       <motion.div
@@ -54,11 +54,11 @@ function WaitingScreen() {
           ))}
         </div>
 
-        <p className="text-3xl md:text-5xl font-black tracking-tight text-white">
+        <p className="text-3xl md:text-5xl font-black tracking-tight text-slate-900">
           待機中
-          <span className="text-indigo-400">...</span>
+          <span className="text-indigo-500">...</span>
         </p>
-        <p className="text-sm text-white/40 tracking-widest uppercase">
+        <p className="text-sm text-slate-400 tracking-widest uppercase">
           Waiting for host
         </p>
       </motion.div>

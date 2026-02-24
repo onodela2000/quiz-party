@@ -57,105 +57,114 @@ export function EntryForm({ roomId, onEntered }: EntryFormProps) {
 
   return (
     <div
-      className="min-h-screen flex items-center justify-center px-4 py-8"
-      style={{ background: "linear-gradient(135deg, #0a0a0a 0%, #0f0f23 100%)" }}
+      className="min-h-screen flex items-center justify-center px-4 py-8 font-serif"
+      style={{ background: "radial-gradient(ellipse at center, #450a0a 0%, #1a0303 100%)" }}
     >
+      <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/diagmonds-light.png')] opacity-20 pointer-events-none" />
+      
       <motion.div
         initial={{ opacity: 0, y: 32 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ type: "spring", stiffness: 240, damping: 26 }}
-        className="w-full max-w-sm"
+        className="w-full max-w-sm relative z-10"
       >
-        {/* Header */}
-        <div className="text-center mb-8">
-          <motion.div
-            initial={{ scale: 0.7, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            transition={{ delay: 0.1, type: "spring", stiffness: 300, damping: 20 }}
-            className="inline-flex items-center justify-center w-16 h-16 rounded-2xl mb-4 text-3xl"
-            style={{ background: "rgba(99,102,241,0.2)", border: "1px solid rgba(99,102,241,0.5)" }}
-          >
-            🎮
-          </motion.div>
-          <h1 className="text-2xl font-black text-white tracking-tight">
-            Quiz King
-          </h1>
-          <p className="text-sm text-slate-400 mt-1">クイズに参加する</p>
-        </div>
-
-        {/* Form */}
-        <form onSubmit={handleSubmit} className="space-y-5">
-          {/* Name input */}
-          <div className="space-y-2">
-            <label className="block text-sm font-semibold text-slate-300">
-              あなたの名前
-            </label>
-            <input
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="名前を入力..."
-              maxLength={20}
-              className={[
-                "w-full px-4 py-3.5 rounded-xl text-white text-base",
-                "bg-white/[0.06] border border-white/15",
-                "placeholder:text-slate-500",
-                "focus:outline-none focus:border-indigo-500/70 focus:bg-white/[0.08]",
-                "transition-colors duration-150",
-              ].join(" ")}
-            />
-          </div>
-
-          {/* Emoji selector */}
-          <div className="space-y-2">
-            <label className="block text-sm font-semibold text-slate-300">
-              アイコンを選択
-            </label>
-            <div className="grid grid-cols-4 gap-2">
-              {EMOJI_OPTIONS.map((emoji) => (
-                <motion.button
-                  key={emoji}
-                  type="button"
-                  whileTap={{ scale: 0.88 }}
-                  whileHover={{ scale: 1.08 }}
-                  transition={{ type: "spring", stiffness: 400, damping: 20 }}
-                  onClick={() => setSelectedEmoji(emoji)}
-                  className={[
-                    "aspect-square rounded-xl text-2xl flex items-center justify-center",
-                    "border transition-colors duration-150",
-                    selectedEmoji === emoji
-                      ? "bg-indigo-500/30 border-indigo-400/80 shadow-[0_0_12px_rgba(99,102,241,0.4)]"
-                      : "bg-white/[0.04] border-white/10 hover:bg-white/[0.08]",
-                  ].join(" ")}
-                >
-                  {emoji}
-                </motion.button>
-              ))}
-            </div>
-          </div>
-
-          {/* Error message */}
-          {error && (
-            <motion.p
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="text-sm text-red-400 text-center"
+        {/* Card Container */}
+        <div className="bg-slate-900/80 backdrop-blur-md border border-yellow-600/30 rounded-2xl p-8 shadow-[0_0_40px_rgba(0,0,0,0.5)] relative overflow-hidden">
+          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-yellow-700 via-yellow-400 to-yellow-700" />
+          
+          {/* Header */}
+          <div className="text-center mb-8">
+            <motion.div
+              initial={{ scale: 0.7, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ delay: 0.1, type: "spring", stiffness: 300, damping: 20 }}
+              className="inline-flex items-center justify-center w-20 h-20 rounded-full mb-4 text-4xl shadow-[0_0_20px_rgba(234,179,8,0.3)] bg-gradient-to-br from-slate-800 to-black border border-yellow-600/50"
             >
-              {error}
-            </motion.p>
-          )}
+              👑
+            </motion.div>
+            <h1 className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-b from-yellow-200 via-yellow-400 to-yellow-700 tracking-tight drop-shadow-sm mb-2">
+              格付王
+            </h1>
+            <p className="text-xs text-yellow-500/60 tracking-[0.2em] uppercase">Quiz King Check</p>
+          </div>
 
-          {/* Submit button */}
-          <Button
-            type="submit"
-            size="lg"
-            variant="primary"
-            disabled={isLoading}
-            className="w-full mt-2"
-          >
-            {isLoading ? "参加中..." : `${selectedEmoji} 参加する`}
-          </Button>
-        </form>
+          {/* Form */}
+          <form onSubmit={handleSubmit} className="space-y-6">
+            {/* Name input */}
+            <div className="space-y-2">
+              <label className="block text-xs font-bold text-yellow-500/80 uppercase tracking-wider">
+                ENTRY NAME
+              </label>
+              <input
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="名前を入力..."
+                maxLength={20}
+                className={[
+                  "w-full px-4 py-3.5 rounded-lg text-white text-base",
+                  "bg-black/40 border border-yellow-600/30",
+                  "placeholder:text-slate-600",
+                  "focus:outline-none focus:border-yellow-500/70 focus:bg-black/60 focus:shadow-[0_0_15px_rgba(234,179,8,0.15)]",
+                  "transition-all duration-200 font-sans",
+                ].join(" ")}
+              />
+            </div>
+
+            {/* Emoji selector */}
+            <div className="space-y-2">
+              <label className="block text-xs font-bold text-yellow-500/80 uppercase tracking-wider">
+                SELECT ICON
+              </label>
+              <div className="grid grid-cols-4 gap-2">
+                {EMOJI_OPTIONS.map((emoji) => (
+                  <motion.button
+                    key={emoji}
+                    type="button"
+                    whileTap={{ scale: 0.9 }}
+                    whileHover={{ scale: 1.05 }}
+                    onClick={() => setSelectedEmoji(emoji)}
+                    className={[
+                      "aspect-square rounded-lg text-2xl flex items-center justify-center",
+                      "border transition-all duration-200",
+                      selectedEmoji === emoji
+                        ? "bg-yellow-500/20 border-yellow-400/80 shadow-[0_0_12px_rgba(234,179,8,0.3)] scale-105"
+                        : "bg-black/20 border-white/5 hover:bg-white/5 hover:border-white/10",
+                    ].join(" ")}
+                  >
+                    {emoji}
+                  </motion.button>
+                ))}
+              </div>
+            </div>
+
+            {/* Error message */}
+            {error && (
+              <motion.p
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="text-sm text-red-400 text-center font-sans bg-red-900/20 py-2 rounded border border-red-500/20"
+              >
+                {error}
+              </motion.p>
+            )}
+
+            {/* Submit button */}
+            <button
+              type="submit"
+              disabled={isLoading}
+              className={[
+                "w-full py-4 rounded-lg font-bold text-lg tracking-widest uppercase transition-all duration-200",
+                "bg-gradient-to-r from-yellow-700 via-yellow-500 to-yellow-700 bg-[length:200%_100%]",
+                "text-black shadow-[0_4px_15px_rgba(234,179,8,0.3)]",
+                "hover:bg-[100%_0] hover:shadow-[0_6px_20px_rgba(234,179,8,0.4)] hover:-translate-y-0.5",
+                "disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0",
+              ].join(" ")}
+            >
+              {isLoading ? "LOADING..." : "ENTRY"}
+            </button>
+          </form>
+        </div>
       </motion.div>
     </div>
   )

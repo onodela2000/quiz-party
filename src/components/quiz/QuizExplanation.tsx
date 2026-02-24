@@ -14,27 +14,34 @@ export function QuizExplanation({ explanation }: QuizExplanationProps) {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.45, ease: "easeOut" }}
       className={[
-        "w-full rounded-2xl p-5 md:p-7",
-        "bg-gradient-to-br from-indigo-950/60 to-purple-950/40",
-        "border border-indigo-500/30",
-        "shadow-[0_0_28px_rgba(99,102,241,0.15)]",
+        "w-full rounded-xl p-8 md:p-10",
+        "bg-[#1e1b4b]/90 backdrop-blur-md",
+        "border-2 border-indigo-500/30",
+        "shadow-[0_20px_50px_rgba(0,0,0,0.5)]",
+        "relative overflow-hidden"
       ].join(" ")}
     >
+      {/* Decorative background */}
+      <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] opacity-20 pointer-events-none" />
+      <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-indigo-500 via-purple-500 to-indigo-500" />
+
       {/* Header label */}
-      <div className="flex items-center gap-2 mb-4">
+      <div className="flex items-center gap-4 mb-6 relative z-10">
         <span
           className={[
-            "inline-flex items-center px-3 py-1 rounded-full",
-            "text-xs font-bold uppercase tracking-[0.18em]",
-            "bg-indigo-500/20 border border-indigo-500/50 text-indigo-300",
+            "inline-flex items-center px-6 py-1.5 rounded-full",
+            "text-sm font-black uppercase tracking-[0.2em] font-serif",
+            "bg-indigo-950 border border-indigo-400 text-indigo-200",
+            "shadow-lg"
           ].join(" ")}
         >
-          解説
+          Explanation
         </span>
+        <div className="h-px flex-1 bg-indigo-500/30" />
       </div>
 
       {/* Explanation body */}
-      <div className="text-base md:text-lg text-slate-200 leading-relaxed">
+      <div className="text-lg md:text-xl text-indigo-50 leading-relaxed font-medium font-serif relative z-10">
         <QuizMarkdown content={explanation} />
       </div>
     </motion.div>

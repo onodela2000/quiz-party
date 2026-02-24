@@ -8,21 +8,21 @@ type Props = {
 }
 
 const PHASE_LABELS: Record<GamePhase, string> = {
-  waiting: "待機中",
-  question: "出題中",
-  reveal: "正解発表",
-  result: "最終結果",
+  waiting: "STAND BY",
+  question: "QUESTION",
+  reveal: "REVEAL",
+  result: "RESULT",
 }
 
 const PHASE_STYLES: Record<GamePhase, string> = {
   waiting:
-    "bg-white/10 text-white/70 border-white/20",
+    "bg-slate-800/60 text-slate-400 border-slate-600 shadow-inner",
   question:
-    "bg-indigo-500/20 text-indigo-300 border-indigo-500/40 shadow-[0_0_10px_rgba(99,102,241,0.3)]",
+    "bg-red-900/40 text-red-400 border-red-500/50 shadow-[0_0_15px_rgba(220,38,38,0.3)] animate-pulse",
   reveal:
-    "bg-amber-500/20 text-amber-300 border-amber-500/40 shadow-[0_0_10px_rgba(245,158,11,0.3)]",
+    "bg-yellow-900/40 text-yellow-400 border-yellow-500/50 shadow-[0_0_15px_rgba(234,179,8,0.3)]",
   result:
-    "bg-emerald-500/20 text-emerald-300 border-emerald-500/40 shadow-[0_0_10px_rgba(16,185,129,0.3)]",
+    "bg-emerald-900/40 text-emerald-400 border-emerald-500/50 shadow-[0_0_15px_rgba(16,185,129,0.3)]",
 }
 
 export function PhaseController({ phase }: Props) {
@@ -33,17 +33,17 @@ export function PhaseController({ phase }: Props) {
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 0.2 }}
       className={[
-        "inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold border tracking-wide uppercase",
+        "inline-flex items-center gap-2 px-4 py-1.5 rounded-lg text-xs font-black border tracking-[0.2em] uppercase shadow-lg backdrop-blur-sm",
         PHASE_STYLES[phase],
       ].join(" ")}
     >
       <span
         className={[
-          "w-1.5 h-1.5 rounded-full",
-          phase === "waiting" ? "bg-white/50" :
-          phase === "question" ? "bg-indigo-400 animate-pulse" :
-          phase === "reveal" ? "bg-amber-400" :
-          "bg-emerald-400",
+          "w-2 h-2 rounded-full shadow-[0_0_8px_currentColor]",
+          phase === "waiting" ? "bg-slate-500" :
+          phase === "question" ? "bg-red-500" :
+          phase === "reveal" ? "bg-yellow-500" :
+          "bg-emerald-500",
         ].join(" ")}
       />
       {PHASE_LABELS[phase]}

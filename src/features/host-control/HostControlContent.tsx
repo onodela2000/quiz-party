@@ -45,21 +45,29 @@ function HostControlBody({
   }
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] text-white px-4 py-10">
-      <div className="max-w-xl mx-auto space-y-6">
+    <div
+      className="min-h-screen font-serif text-white px-4 py-10"
+      style={{ background: "radial-gradient(ellipse at center, #450a0a 0%, #1a0303 100%)" }}
+    >
+      <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/diagmonds-light.png')] opacity-20 pointer-events-none" />
+
+      <div className="max-w-xl mx-auto space-y-8 relative z-10">
         {/* ヘッダー */}
         <motion.div
           initial={{ opacity: 0, y: -16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4 }}
-          className="space-y-1"
+          className="space-y-2 text-center"
         >
-          <p className="text-xs text-indigo-400 uppercase tracking-widest font-semibold">
-            ホスト操作パネル
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-black/40 border border-yellow-600/50 shadow-[0_0_20px_rgba(234,179,8,0.2)] mb-2">
+            <span className="text-3xl">👑</span>
+          </div>
+          <p className="text-xs text-yellow-500/80 uppercase tracking-[0.3em] font-bold">
+            Host Control Panel
           </p>
-          <h1 className="text-2xl font-bold tracking-tight">
+          <h1 className="text-3xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-b from-yellow-200 via-yellow-400 to-yellow-700 drop-shadow-sm">
             {room?.title ?? (
-              <span className="text-white/30 animate-pulse">読み込み中...</span>
+              <span className="text-slate-500 animate-pulse">Loading...</span>
             )}
           </h1>
         </motion.div>
@@ -69,30 +77,28 @@ function HostControlBody({
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1, duration: 0.4 }}
-          className="rounded-xl border border-white/10 bg-white/5 p-4 space-y-4"
+          className="rounded-xl border border-yellow-600/30 bg-black/40 backdrop-blur-md p-6 space-y-6 shadow-[0_0_40px_rgba(0,0,0,0.3)]"
         >
           {/* 参加者数 */}
-          <div className="flex items-center gap-3">
-            <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-indigo-500/20 flex items-center justify-center text-lg">
+          <div className="flex items-center gap-4 border-b border-white/10 pb-6">
+            <div className="flex-shrink-0 w-12 h-12 rounded-lg bg-gradient-to-br from-yellow-900/40 to-black border border-yellow-600/30 flex items-center justify-center text-2xl shadow-inner">
               👥
             </div>
             <div>
-              <p className="text-xs text-white/40">参加者数</p>
-              <p className="text-xl font-bold text-white">
-                {participants.length}人
+              <p className="text-xs text-yellow-500/60 uppercase tracking-wider font-bold mb-1">Participants</p>
+              <p className="text-3xl font-black text-white tabular-nums tracking-wide">
+                {participants.length}<span className="text-sm font-bold text-slate-400 ml-2">Players</span>
               </p>
             </div>
           </div>
 
           {/* 参加URL */}
-          <div className="space-y-1.5">
-            <p className="text-xs text-white/40">参加URL</p>
+          <div className="space-y-2">
+            <p className="text-xs text-yellow-500/60 uppercase tracking-wider font-bold">Invitation URL</p>
             <div className="flex items-center gap-2">
-              <input
-                readOnly
-                value={playUrl}
-                className="flex-1 bg-black/40 border border-white/10 rounded-lg px-3 py-1.5 text-sm text-white/70 focus:outline-none"
-              />
+              <div className="flex-1 bg-black/60 border border-white/10 rounded-lg px-4 py-3 text-sm text-slate-300 font-mono truncate shadow-inner">
+                {playUrl}
+              </div>
               <motion.button
                 type="button"
                 onClick={handleCopyUrl}
@@ -100,13 +106,13 @@ function HostControlBody({
                 whileHover={{ scale: 1.04 }}
                 transition={{ type: "spring", stiffness: 400, damping: 25 }}
                 className={[
-                  "flex-shrink-0 px-3 py-1.5 rounded-lg text-sm font-medium border transition-colors",
+                  "flex-shrink-0 px-4 py-3 rounded-lg text-sm font-bold border transition-all duration-200 uppercase tracking-wider",
                   copied
-                    ? "bg-emerald-500/20 border-emerald-500/40 text-emerald-300"
-                    : "bg-white/5 border-white/10 hover:border-white/30 text-white/70",
+                    ? "bg-emerald-900/40 border-emerald-500/50 text-emerald-400 shadow-[0_0_15px_rgba(16,185,129,0.2)]"
+                    : "bg-yellow-600/20 border-yellow-600/40 text-yellow-200 hover:bg-yellow-600/30 hover:border-yellow-500/60 hover:shadow-[0_0_15px_rgba(234,179,8,0.15)]",
                 ].join(" ")}
               >
-                {copied ? "コピー済み" : "コピー"}
+                {copied ? "Copied" : "Copy"}
               </motion.button>
             </div>
           </div>
@@ -160,7 +166,7 @@ export function HostControlContent() {
 
   if (!roomId) {
     return (
-      <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center text-white/40">
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center text-slate-400">
         ルームが見つかりません
       </div>
     )

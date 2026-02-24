@@ -29,7 +29,7 @@ const components: Components = {
 
     return (
       <code
-        className="inline-block px-1.5 py-0.5 rounded text-red-400 bg-red-950/50 border border-red-900/50 font-mono text-[0.88em]"
+        className="inline-block px-1.5 py-0.5 rounded text-red-600 bg-red-50 border border-red-200 font-mono text-[0.88em]"
         {...props}
       >
         {children}
@@ -45,14 +45,14 @@ const components: Components = {
   },
   strong({ children, node: _node, ...props }) {
     return (
-      <strong className="font-bold text-white" {...props}>
+      <strong className="font-bold text-slate-900" {...props}>
         {children}
       </strong>
     );
   },
   em({ children, node: _node, ...props }) {
     return (
-      <em className="italic text-slate-300" {...props}>
+      <em className="italic text-slate-600" {...props}>
         {children}
       </em>
     );
@@ -73,7 +73,7 @@ const components: Components = {
   },
   li({ children, node: _node, ...props }) {
     return (
-      <li className="text-slate-200" {...props}>
+      <li className="text-slate-700" {...props}>
         {children}
       </li>
     );
@@ -82,7 +82,7 @@ const components: Components = {
 
 export function QuizMarkdown({ content }: QuizMarkdownProps) {
   return (
-    <div className="text-slate-100 leading-relaxed">
+    <div className="text-slate-800 leading-relaxed">
       <Markdown components={components}>{content}</Markdown>
     </div>
   );

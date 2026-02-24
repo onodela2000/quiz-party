@@ -41,27 +41,25 @@ export function AnswerGrid({
   return (
     <div className="w-full space-y-4">
       {/* Answer count header */}
-      <div className="flex items-center justify-between px-1">
-        <span className="text-sm font-bold uppercase tracking-widest text-white/50">
-          回答状況
+      <div className="flex items-center justify-between px-4 py-2 border-b border-white/10 mb-4">
+        <span className="text-sm font-bold uppercase tracking-[0.2em] text-yellow-500/80 font-serif">
+          Status
         </span>
-        <motion.span
+        <motion.div
           key={answeredCount}
-          initial={{ scale: 1.3, color: "#06b6d4" }}
-          animate={{ scale: 1, color: "#ffffff" }}
-          transition={{ duration: 0.35 }}
-          className="text-lg font-black tabular-nums text-white"
+          initial={{ scale: 1.1 }}
+          animate={{ scale: 1 }}
+          className="flex items-baseline gap-2"
         >
-          <span className="text-cyan-400">{answeredCount}</span>
-          <span className="text-white/40 text-sm font-semibold"> / {totalCount}</span>
-          <span className="ml-2 text-sm font-semibold text-white/60">人回答済み</span>
-        </motion.span>
+          <span className="text-2xl font-black text-white font-serif">{answeredCount}</span>
+          <span className="text-sm text-white/40 font-serif">/ {totalCount}</span>
+        </motion.div>
       </div>
 
       {/* Progress bar */}
-      <div className="w-full h-1.5 rounded-full bg-white/10 overflow-hidden">
+      <div className="w-full h-1 bg-white/10 overflow-hidden mb-6">
         <motion.div
-          className="h-full rounded-full bg-gradient-to-r from-cyan-500 to-indigo-500"
+          className="h-full bg-gradient-to-r from-yellow-700 via-yellow-500 to-yellow-200"
           initial={{ width: 0 }}
           animate={{
             width: totalCount > 0 ? `${(answeredCount / totalCount) * 100}%` : "0%",
@@ -96,22 +94,26 @@ export function AnswerGrid({
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4, duration: 0.45 }}
           className={[
-            "flex items-center justify-center gap-3 py-3 px-5 rounded-xl",
-            "bg-red-500/10 border border-red-500/40",
-            "shadow-[0_0_24px_rgba(239,68,68,0.2)]",
+            "flex items-center justify-center gap-4 py-6 px-8 rounded-lg",
+            "bg-gradient-to-r from-transparent via-red-900/80 to-transparent",
+            "border-y border-red-500/30",
+            "relative overflow-hidden"
           ].join(" ")}
         >
-          <span className="text-red-400 text-2xl">★</span>
-          <span className="text-base font-bold text-red-300">
-            正解者:{" "}
-            {
-              participants.filter(
-                (p) => answersMap.get(p.id) === correctIndex
-              ).length
-            }{" "}
-            名
-          </span>
-          <span className="text-red-400 text-2xl">★</span>
+          <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/diagmonds-light.png')] opacity-20" />
+          
+          <span className="text-yellow-500 text-3xl">✦</span>
+          <div className="flex flex-col items-center">
+            <span className="text-xs font-serif text-red-300 tracking-[0.3em] uppercase mb-1">Winners</span>
+            <span className="text-2xl font-black text-white font-serif tracking-widest">
+              正解者 <span className="text-4xl text-yellow-400 mx-2">{
+                participants.filter(
+                  (p) => answersMap.get(p.id) === correctIndex
+                ).length
+              }</span> 名
+            </span>
+          </div>
+          <span className="text-yellow-500 text-3xl">✦</span>
         </motion.div>
       )}
     </div>

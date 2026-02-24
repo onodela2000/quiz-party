@@ -7,9 +7,10 @@ interface QuizCardProps {
   question: string;
   questionNumber: number;
   total: number;
+  compact?: boolean;
 }
 
-export function QuizCard({ question, questionNumber, total }: QuizCardProps) {
+export function QuizCard({ question, questionNumber, total, compact }: QuizCardProps) {
   return (
     <motion.div
       key={questionNumber}
@@ -18,55 +19,49 @@ export function QuizCard({ question, questionNumber, total }: QuizCardProps) {
       exit={{ opacity: 0, y: -30 }}
       transition={{ type: "spring", stiffness: 260, damping: 28 }}
       className={[
-        "w-full rounded-2xl p-6 md:p-10",
-        "bg-gradient-to-br from-white/5 to-white/[0.02]",
-        "border border-white/10",
-        "shadow-[0_0_40px_rgba(99,102,241,0.12)]",
+        "w-full h-full rounded-sm bg-[#fffbf0]",
+        "border-[8px] border-double border-yellow-600/40",
+        "shadow-[0_20px_60px_rgba(0,0,0,0.5)]",
+        "relative overflow-hidden flex flex-col justify-center",
+        compact ? "p-4 md:p-6" : "p-6 md:p-10"
       ].join(" ")}
     >
-      {/* Question counter */}
-      <div className="flex items-center gap-2 mb-6">
-        <span className="text-xs font-bold uppercase tracking-[0.2em] text-indigo-400">
-          Question
-        </span>
-        <span className="text-xs font-bold text-white/40">
-          {questionNumber} / {total}
-        </span>
-        {/* Progress bar */}
-        <div className="flex-1 h-1 rounded-full bg-white/10 overflow-hidden ml-2">
-          <motion.div
-            className="h-full rounded-full bg-indigo-500"
-            initial={{ width: 0 }}
-            animate={{ width: `${(questionNumber / total) * 100}%` }}
-            transition={{ duration: 0.5, ease: "easeOut" }}
-          />
-        </div>
-      </div>
+      {/* Paper texture overlay */}
+      <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cream-paper.png')] opacity-60 pointer-events-none mix-blend-multiply" />
+      
+      {/* Corner decorations */}
+      <div className="absolute top-0 left-0 w-16 h-16 border-t-4 border-l-4 border-yellow-600/60 rounded-tl-none pointer-events-none" />
+      <div className="absolute top-0 right-0 w-16 h-16 border-t-4 border-r-4 border-yellow-600/60 rounded-tr-none pointer-events-none" />
+      <div className="absolute bottom-0 left-0 w-16 h-16 border-b-4 border-l-4 border-yellow-600/60 rounded-bl-none pointer-events-none" />
+      <div className="absolute bottom-0 right-0 w-16 h-16 border-b-4 border-r-4 border-yellow-600/60 rounded-br-none pointer-events-none" />
 
-      {/* Question number badge */}
-      <motion.div
-        initial={{ scale: 0.7, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        transition={{ delay: 0.1, type: "spring", stiffness: 300, damping: 20 }}
-        className={[
-          "inline-flex items-center justify-center w-14 h-14 mb-4",
-          "rounded-2xl bg-indigo-500/20 border border-indigo-500/40",
-          "text-2xl font-black text-indigo-300",
-          "shadow-[0_0_16px_rgba(99,102,241,0.3)]",
-        ].join(" ")}
-      >
-        {questionNumber}
-      </motion.div>
+      {/* Question counter */}
+      <div className={`flex items-center justify-center gap-4 relative z-10 ${compact ? 'mb-4' : 'mb-8'}`}>
+        <div className="h-px w-12 bg-yellow-600/30" />
+        <span className="text-sm font-bold uppercase tracking-[0.3em] text-yellow-800/70 font-serif">
+          Question {questionNumber}
+        </span>
+        <div className="h-px w-12 bg-yellow-600/30" />
+      </div>
 
       {/* Question text */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.18 }}
-        className="text-2xl md:text-3xl lg:text-4xl font-bold text-white leading-tight"
+        className={[
+          "font-black text-slate-900 leading-tight relative z-10 text-center font-serif",
+          compact ? "text-xl md:text-2xl" : "text-xl md:text-2xl lg:text-3xl"
+        ].join(" ")}
+        style={{ textShadow: "0 2px 4px rgba(0,0,0,0.1)" }}
       >
         <QuizMarkdown content={question} />
       </motion.div>
+      
+      {/* Decorative bottom element */}
+      <div className={`flex justify-center relative z-10 ${compact ? 'mt-4' : 'mt-8'}`}>
+        <div className="w-24 h-1 bg-gradient-to-r from-transparent via-yellow-600/40 to-transparent" />
+      </div>
     </motion.div>
   );
 }

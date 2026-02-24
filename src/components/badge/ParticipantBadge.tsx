@@ -15,18 +15,19 @@ export function ParticipantBadge({ name, icon, score }: ParticipantBadgeProps) {
       animate={{ opacity: 1, scale: 1 }}
       transition={{ type: "spring", stiffness: 300, damping: 20 }}
       className={[
-        "inline-flex items-center gap-2 px-3 py-1.5 rounded-full",
-        "bg-white/5 border border-cyan-500/40",
-        "shadow-[0_0_10px_rgba(6,182,212,0.25)]",
-        "text-white backdrop-blur-sm",
+        "inline-flex items-center gap-3 px-4 py-2 rounded-lg border-2",
+        "bg-white/90 shadow-[0_4px_6px_rgba(0,0,0,0.3)]",
+        "border-yellow-600/50",
       ].join(" ")}
     >
-      <span className="text-xl leading-none">{icon}</span>
-      <span className="text-sm font-semibold tracking-wide truncate max-w-[10rem]">
+      <div className="w-8 h-8 flex items-center justify-center rounded-full bg-slate-100 border border-slate-300 text-2xl leading-none shadow-inner">
+        {icon}
+      </div>
+      <span className="text-sm font-bold tracking-wide truncate max-w-[12rem] text-slate-900 font-serif">
         {name}
       </span>
       {score !== undefined && (
-        <span className="ml-1 text-xs font-bold text-cyan-400 tabular-nums">
+        <span className="ml-2 text-xs font-black text-white tabular-nums bg-slate-900 px-2 py-1 rounded border border-slate-700 font-serif">
           {score.toLocaleString()}
         </span>
       )}

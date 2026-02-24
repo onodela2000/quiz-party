@@ -17,14 +17,14 @@ export function PlayerStatus({ answers }: PlayerStatusProps) {
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, ease: "easeOut" }}
-      className="w-full rounded-2xl p-4 bg-white/[0.04] border border-white/10"
+      className="w-full rounded-xl p-5 bg-black/40 border border-yellow-600/30 backdrop-blur-sm"
     >
-      <div className="flex items-center justify-between mb-3">
-        <span className="text-xs font-bold uppercase tracking-[0.18em] text-slate-400">
-          あなたの回答履歴
+      <div className="flex items-center justify-between mb-4">
+        <span className="text-xs font-bold uppercase tracking-[0.2em] text-yellow-500/80 font-serif">
+          HISTORY
         </span>
-        <span className="text-sm font-bold text-cyan-400">
-          正解率 {rate}%
+        <span className="text-sm font-black text-yellow-400 font-serif">
+          Rate {rate}%
         </span>
       </div>
 
@@ -41,28 +41,24 @@ export function PlayerStatus({ answers }: PlayerStatusProps) {
               delay: index * 0.05,
             }}
             className={[
-              "inline-flex items-center justify-center w-8 h-8 rounded-full text-base font-bold",
+              "inline-flex items-center justify-center w-8 h-8 rounded-full text-sm font-black shadow-lg",
               answer.is_correct
-                ? "bg-green-500/20 border border-green-400/60 text-green-300"
-                : "bg-red-500/20 border border-red-400/60 text-red-300",
+                ? "bg-gradient-to-br from-yellow-400 to-yellow-600 border border-yellow-300 text-yellow-900 shadow-yellow-500/20"
+                : "bg-gradient-to-br from-slate-700 to-slate-800 border border-slate-600 text-slate-400 shadow-black/30",
             ].join(" ")}
           >
-            {answer.is_correct ? "○" : "✕"}
+            {answer.is_correct ? "👑" : "✕"}
           </motion.span>
         ))}
       </div>
 
-      <div className="mt-3 flex items-center gap-3 text-xs text-slate-400">
-        <span>
-          <span className="text-green-400 font-bold">{correctCount}</span> 正解
+      <div className="mt-4 flex items-center justify-end gap-4 text-xs font-serif tracking-wider">
+        <span className="text-yellow-100/60">
+          Correct <span className="text-yellow-400 font-bold text-sm ml-1">{correctCount}</span>
         </span>
-        <span>
-          <span className="text-red-400 font-bold">
-            {answers.length - correctCount}
-          </span>{" "}
-          不正解
+        <span className="text-yellow-100/60">
+          Total <span className="text-white font-bold text-sm ml-1">{answers.length}</span>
         </span>
-        <span>合計 {answers.length} 問</span>
       </div>
     </motion.div>
   )

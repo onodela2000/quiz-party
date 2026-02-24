@@ -35,11 +35,11 @@ export function ControlPanel({ quizzes }: Props) {
   }
 
   return (
-    <div className="rounded-xl border border-white/10 bg-white/5 p-6 space-y-6">
+    <div className="rounded-xl border border-yellow-600/30 bg-black/40 backdrop-blur-md p-8 space-y-8 shadow-[0_0_40px_rgba(0,0,0,0.3)]">
       {/* 現在のフェーズ */}
-      <div className="flex items-center justify-between">
-        <h2 className="text-sm font-semibold text-white/50 uppercase tracking-wider">
-          フェーズ
+      <div className="flex items-center justify-between border-b border-white/10 pb-6">
+        <h2 className="text-xs font-bold text-yellow-500/80 uppercase tracking-[0.2em]">
+          Current Phase
         </h2>
         <PhaseController phase={phase} />
       </div>
@@ -50,17 +50,19 @@ export function ControlPanel({ quizzes }: Props) {
           key={currentQuizIndex}
           initial={{ opacity: 0, x: 12 }}
           animate={{ opacity: 1, x: 0 }}
-          className="flex items-center justify-between bg-indigo-500/10 border border-indigo-500/20 rounded-lg px-4 py-2"
+          className="flex items-center justify-between bg-gradient-to-r from-slate-900 to-black border border-yellow-600/30 rounded-lg px-6 py-4 shadow-inner"
         >
-          <span className="text-sm text-indigo-300">現在の問題</span>
-          <span className="text-sm font-bold text-white">
-            {currentQuizIndex + 1} / {totalQuizzes}
+          <span className="text-sm font-bold text-slate-400 uppercase tracking-wider">Question No.</span>
+          <span className="text-2xl font-black text-white tabular-nums">
+            <span className="text-yellow-400 text-3xl mr-1">{currentQuizIndex + 1}</span>
+            <span className="text-slate-600 text-lg mx-2">/</span>
+            <span className="text-slate-400 text-xl">{totalQuizzes}</span>
           </span>
         </motion.div>
       )}
 
       {/* 操作ボタン */}
-      <div className="space-y-3">
+      <div className="space-y-4">
         <AnimatePresence mode="wait">
           {phase === "waiting" && (
             <motion.div
@@ -72,11 +74,11 @@ export function ControlPanel({ quizzes }: Props) {
               <Button
                 variant="primary"
                 size="lg"
-                className="w-full"
+                className="w-full py-5 text-lg font-black tracking-widest uppercase bg-gradient-to-r from-yellow-700 via-yellow-500 to-yellow-700 bg-[length:200%_100%] hover:bg-[100%_0] border-none shadow-[0_0_20px_rgba(234,179,8,0.4)] transition-all duration-300"
                 onClick={handleStartQuiz}
                 disabled={totalQuizzes === 0}
               >
-                クイズ開始
+                START QUIZ
               </Button>
             </motion.div>
           )}
@@ -91,10 +93,10 @@ export function ControlPanel({ quizzes }: Props) {
               <Button
                 variant="primary"
                 size="lg"
-                className="w-full bg-amber-500 hover:bg-amber-400 border-amber-400 shadow-[0_0_12px_rgba(245,158,11,0.5)]"
+                className="w-full py-5 text-lg font-black tracking-widest uppercase bg-gradient-to-r from-red-800 via-red-600 to-red-800 bg-[length:200%_100%] hover:bg-[100%_0] border-none shadow-[0_0_20px_rgba(220,38,38,0.4)] transition-all duration-300"
                 onClick={handleReveal}
               >
-                正解発表
+                REVEAL ANSWER
               </Button>
             </motion.div>
           )}
@@ -105,25 +107,25 @@ export function ControlPanel({ quizzes }: Props) {
               initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -8 }}
-              className="space-y-3"
+              className="space-y-4"
             >
               {isLastQuiz ? (
                 <Button
                   variant="primary"
                   size="lg"
-                  className="w-full bg-emerald-500 hover:bg-emerald-400 border-emerald-400 shadow-[0_0_12px_rgba(16,185,129,0.5)]"
+                  className="w-full py-5 text-lg font-black tracking-widest uppercase bg-gradient-to-r from-emerald-800 via-emerald-600 to-emerald-800 bg-[length:200%_100%] hover:bg-[100%_0] border-none shadow-[0_0_20px_rgba(16,185,129,0.4)] transition-all duration-300"
                   onClick={handleShowResult}
                 >
-                  最終結果へ
+                  SHOW RESULT
                 </Button>
               ) : (
                 <Button
                   variant="primary"
                   size="lg"
-                  className="w-full"
+                  className="w-full py-5 text-lg font-black tracking-widest uppercase bg-gradient-to-r from-blue-800 via-blue-600 to-blue-800 bg-[length:200%_100%] hover:bg-[100%_0] border-none shadow-[0_0_20px_rgba(37,99,235,0.4)] transition-all duration-300"
                   onClick={handleNextQuestion}
                 >
-                  次の問題へ
+                  NEXT QUESTION
                 </Button>
               )}
             </motion.div>
@@ -135,10 +137,10 @@ export function ControlPanel({ quizzes }: Props) {
               initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -8 }}
-              className="flex items-center justify-center py-4"
+              className="flex items-center justify-center py-6"
             >
-              <span className="text-white/50 text-sm border border-white/10 rounded-lg px-6 py-3">
-                選手権が終了しました
+              <span className="text-yellow-500/80 text-sm font-bold uppercase tracking-[0.3em] border border-yellow-600/30 rounded-lg px-8 py-4 bg-black/20 backdrop-blur-sm shadow-[0_0_15px_rgba(234,179,8,0.1)]">
+                Game Finished
               </span>
             </motion.div>
           )}

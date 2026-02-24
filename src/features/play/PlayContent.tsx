@@ -27,10 +27,10 @@ export function PlayContent() {
   if (!isHydrated) {
     return (
       <div
-        className="min-h-screen flex items-center justify-center"
-        style={{ background: "linear-gradient(135deg, #0a0a0a 0%, #0f0f23 100%)" }}
+        className="min-h-screen flex items-center justify-center font-serif"
+        style={{ background: "radial-gradient(ellipse at center, #450a0a 0%, #1a0303 100%)" }}
       >
-        <div className="text-slate-400 text-sm">読み込み中...</div>
+        <div className="text-yellow-500/80 text-sm tracking-widest uppercase">Loading...</div>
       </div>
     )
   }

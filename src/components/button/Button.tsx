@@ -14,7 +14,7 @@ const variantStyles: Record<Variant, string> = {
   primary:
     "bg-indigo-500 hover:bg-indigo-400 text-white border border-indigo-400 shadow-[0_0_12px_rgba(99,102,241,0.5)]",
   ghost:
-    "bg-transparent hover:bg-white/10 text-white border border-white/30 hover:border-white/60",
+    "bg-transparent hover:bg-slate-100 text-slate-700 border border-slate-300 hover:border-slate-400",
   danger:
     "bg-red-600 hover:bg-red-500 text-white border border-red-500 shadow-[0_0_12px_rgba(239,68,68,0.4)]",
 };

@@ -40,7 +40,7 @@ export function Timer({ seconds, onEnd }: TimerProps) {
             cy="50"
             r="44"
             fill="none"
-            stroke="rgba(255,255,255,0.08)"
+            stroke="rgba(100,116,139,0.2)"
             strokeWidth="8"
           />
           {/* Progress arc */}
@@ -69,7 +69,7 @@ export function Timer({ seconds, onEnd }: TimerProps) {
               transition={{ duration: 0.25 }}
               className={[
                 "text-4xl font-black tabular-nums select-none",
-                isUrgent ? "text-red-400" : "text-white",
+                isUrgent ? "text-red-500" : "text-slate-900",
               ].join(" ")}
             >
               {remaining}

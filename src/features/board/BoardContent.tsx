@@ -10,6 +10,7 @@ import { GameProvider } from "@/providers/GameProvider";
 import { QuizCard } from "@/components/quiz/QuizCard";
 import { QuizExplanation } from "@/components/quiz/QuizExplanation";
 import { ParticipantBadge } from "@/components/badge/ParticipantBadge";
+import { QuizChoices } from "@/components/quiz/QuizChoices";
 import { AnswerGrid } from "./AnswerGrid";
 import { ScoreBoard } from "./ScoreBoard";
 import { ResultScreen } from "@/features/result/ResultScreen";
@@ -36,10 +37,14 @@ function BoardInner({ roomId }: { roomId: string }) {
 
   // answersMap: participantId → choiceIndex  (for current quiz)
   const [answersMap, setAnswersMap] = useState<Map<string, number>>(new Map());
+  const [showExplanation, setShowExplanation] = useState(false);
+  const [showRanking, setShowRanking] = useState(false);
 
   // Reset answersMap when quiz changes
   useEffect(() => {
     setAnswersMap(new Map());
+    setShowExplanation(false);
+    setShowRanking(false);
   }, [currentQuizIndex]);
 
   // Realtime subscription for answers
@@ -99,59 +104,82 @@ function BoardInner({ roomId }: { roomId: string }) {
   // ── Phase: waiting ───────────────────────────────────────────────────────
   if (phase === "waiting") {
     return (
-      <div className="min-h-screen bg-[#0a0a0a] flex flex-col items-center justify-center relative overflow-hidden">
-        {/* Glow orb */}
-        <motion.div
-          className="absolute w-96 h-96 rounded-full bg-indigo-600/10 blur-3xl pointer-events-none"
-          animate={{ scale: [1, 1.15, 1], opacity: [0.5, 0.8, 0.5] }}
-          transition={{ duration: 3.5, repeat: Infinity, ease: "easeInOut" }}
-        />
+      <div className="min-h-screen bg-[radial-gradient(ellipse_at_center,#be123c_0%,#881337_40%,#4c0519_100%)] flex flex-col items-center justify-center relative overflow-hidden text-white font-serif">
+        {/* Decorative background elements */}
+        <div className="absolute inset-0 opacity-20 bg-[url('https://www.transparenttextures.com/patterns/diagmonds-light.png')] pointer-events-none" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,rgba(0,0,0,0.4)_100%)] pointer-events-none" />
+        
+        {/* Golden frame border */}
+        <div className="absolute inset-4 border-2 border-yellow-600/30 rounded-3xl pointer-events-none" />
+        <div className="absolute inset-6 border border-yellow-600/20 rounded-2xl pointer-events-none" />
 
-        <div className="relative z-10 w-full max-w-4xl px-6 space-y-12">
+        <div className="relative z-10 w-full max-w-5xl px-6 space-y-16 text-center">
           {/* Title */}
           <motion.div
-            initial={{ opacity: 0, y: -32 }}
-            animate={{ opacity: 1, y: 0 }}
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
             transition={{ type: "spring", stiffness: 200, damping: 24 }}
-            className="text-center space-y-2"
+            className="space-y-6"
           >
-            <p className="text-xs font-bold uppercase tracking-[0.3em] text-cyan-400">
-              Quiz King
-            </p>
-            <h1 className="text-5xl md:text-7xl font-black text-white tracking-tight">
-              参加者<span className="text-cyan-400">待機中</span>
-            </h1>
-            <p className="text-white/40 text-lg font-semibold">
-              Waiting for players...
+            <div className="inline-block relative">
+              <motion.div 
+                className="absolute -inset-8 bg-yellow-500/20 blur-3xl rounded-full"
+                animate={{ opacity: [0.5, 0.8, 0.5], scale: [1, 1.1, 1] }}
+                transition={{ duration: 4, repeat: Infinity }}
+              />
+              <h1 className="relative text-7xl md:text-9xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-b from-yellow-200 via-yellow-400 to-yellow-700 drop-shadow-[0_4px_4px_rgba(0,0,0,0.5)]"
+                  style={{ textShadow: "0 2px 0 #713f12, 0 4px 0 #451a03, 0 10px 20px rgba(0,0,0,0.5)" }}>
+                格付<span className="text-white drop-shadow-[0_0_10px_rgba(255,255,255,0.8)]">王</span>
+              </h1>
+            </div>
+            
+            <div className="flex items-center justify-center gap-4">
+              <div className="h-px w-24 bg-gradient-to-r from-transparent via-yellow-500 to-transparent" />
+              <p className="text-yellow-100/80 text-xl font-medium tracking-[0.2em] uppercase font-sans">
+                Quiz King Check
+              </p>
+              <div className="h-px w-24 bg-gradient-to-r from-transparent via-yellow-500 to-transparent" />
+            </div>
+            
+            <p className="text-white/90 text-2xl font-bold tracking-widest bg-black/20 py-2 px-8 rounded-full inline-block backdrop-blur-sm border border-white/10">
+              参加者待機中...
             </p>
           </motion.div>
 
           {/* Participant list */}
           {participants.length === 0 ? (
-            <motion.p
+            <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              className="text-center text-white/30 text-2xl font-bold"
+              className="flex flex-col items-center gap-6 p-8 bg-black/20 rounded-2xl border border-white/10 backdrop-blur-sm max-w-md mx-auto"
             >
-              まだ誰も参加していません
-            </motion.p>
+              <div className="w-20 h-20 rounded-full border-4 border-yellow-500/30 border-t-yellow-400 animate-spin" />
+              <p className="text-yellow-100 text-xl font-bold tracking-wider">
+                エントリー受付中
+              </p>
+            </motion.div>
           ) : (
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.2 }}
-              className="space-y-4"
+              className="space-y-8"
             >
-              <p className="text-sm font-bold uppercase tracking-widest text-white/50 text-center">
-                {participants.length} 名が参加中
-              </p>
-              <div className="flex flex-wrap gap-3 justify-center">
+              <div className="inline-flex items-center gap-3 px-6 py-2 bg-gradient-to-r from-transparent via-black/30 to-transparent">
+                <span className="text-yellow-400 text-lg">◆</span>
+                <p className="text-xl font-bold tracking-widest text-white">
+                  現在の挑戦者: <span className="text-yellow-400 text-3xl mx-2">{participants.length}</span> 名
+                </p>
+                <span className="text-yellow-400 text-lg">◆</span>
+              </div>
+              
+              <div className="flex flex-wrap gap-4 justify-center">
                 <AnimatePresence>
                   {participants.map((p) => (
                     <motion.div
                       key={p.id}
-                      initial={{ opacity: 0, scale: 0.7 }}
-                      animate={{ opacity: 1, scale: 1 }}
+                      initial={{ opacity: 0, scale: 0.7, y: 20 }}
+                      animate={{ opacity: 1, scale: 1, y: 0 }}
                       exit={{ opacity: 0, scale: 0.7 }}
                       transition={{ type: "spring", stiffness: 300, damping: 22 }}
                     >
@@ -169,123 +197,111 @@ function BoardInner({ roomId }: { roomId: string }) {
 
   // ── Phase: question / reveal ─────────────────────────────────────────────
   return (
-    <div className="min-h-screen bg-[#0a0a0a] relative overflow-hidden">
-      {/* Background glow */}
-      <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute -top-24 left-1/2 -translate-x-1/2 w-[600px] h-64 bg-indigo-600/8 blur-3xl rounded-full" />
-      </div>
+    <div
+      className="h-screen w-full font-serif text-slate-50 relative overflow-hidden flex flex-col"
+      style={{ background: "radial-gradient(ellipse at center, #450a0a 0%, #1a0303 100%)" }}
+    >
+      <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/diagmonds-light.png')] opacity-20 pointer-events-none" />
 
-      <div className="relative z-10 max-w-5xl mx-auto px-4 py-8 space-y-6">
-        {/* Quiz card */}
-        {currentQuiz && (
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={`quiz-${currentQuizIndex}`}
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              transition={{ type: "spring", stiffness: 240, damping: 26 }}
-            >
+      {/* Main Content Area */}
+      <div className="flex-1 w-full h-full p-4 md:p-6 lg:p-8 flex flex-col gap-6 relative z-10">
+        
+        {/* Phase: question OR reveal */}
+        {(phase === "question" || phase === "reveal") && currentQuiz && (
+          <div className="h-full grid grid-cols-10 gap-6">
+            {/* Left Column (6): Question */}
+            <div className="col-span-6 h-full flex flex-col relative">
               <QuizCard
                 question={currentQuiz.question}
                 questionNumber={currentQuizIndex + 1}
                 total={quizzes.length}
+                compact={false}
               />
-            </motion.div>
-          </AnimatePresence>
-        )}
-
-        {/* Phase: question — show answer count */}
-        {phase === "question" && (
-          <motion.div
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-            className="flex items-center justify-center gap-4"
-          >
-            <div
-              className={[
-                "flex items-center gap-3 px-6 py-3 rounded-2xl",
-                "bg-white/[0.05] border border-white/10",
-                "shadow-[0_0_24px_rgba(6,182,212,0.12)]",
-              ].join(" ")}
-            >
-              <motion.span
-                key={answersMap.size}
-                initial={{ scale: 1.5, color: "#06b6d4" }}
-                animate={{ scale: 1, color: "#ffffff" }}
-                transition={{ duration: 0.3 }}
-                className="text-4xl font-black tabular-nums text-white"
-              >
-                {answersMap.size}
-              </motion.span>
-              <span className="text-white/50 text-xl font-semibold">
-                / {participants.length}
-              </span>
-              <span className="text-white/60 text-lg font-bold ml-1">人回答済み</span>
+              
+              {/* Explanation Button (Reveal Phase Only) */}
+              {phase === 'reveal' && (
+                <button
+                  onClick={() => setShowExplanation(true)}
+                  className="absolute top-6 right-6 z-20 flex items-center gap-2 px-4 py-2 rounded-lg bg-black/40 hover:bg-black/60 border border-white/20 text-white/90 hover:text-white transition-all text-sm font-bold uppercase tracking-wider backdrop-blur-md cursor-pointer shadow-lg"
+                >
+                  <span className="text-xl">💡</span>
+                  <span>Explanation</span>
+                </button>
+              )}
             </div>
-          </motion.div>
-        )}
 
-        {/* Phase: reveal — answer grid + explanation */}
-        {phase === "reveal" && currentQuiz && (
+            {/* Right Column (4): Side Panel */}
+            <div className="col-span-4 h-full flex flex-col gap-4 min-h-0 overflow-y-auto">
+              {/* Top Status Area */}
+              {phase === 'reveal' ? (
+                /* Correct answer banner */
+                <div className="hidden" />
+              ) : (
+                /* Answer Count */
+                <div className="flex-shrink-0 flex items-center justify-center py-2">
+                  <div className="flex items-baseline gap-2 text-white">
+                    <span className="text-4xl font-black tabular-nums text-cyan-400 drop-shadow-md">
+                      {answersMap.size}
+                    </span>
+                    <span className="text-slate-400 text-lg font-bold">
+                      / {participants.length}
+                    </span>
+                  </div>
+                </div>
+              )}
+
+              {/* Quiz Choices */}
+              <div className="flex-shrink-0">
+                <QuizChoices
+                  choices={currentQuiz.choices}
+                  correctIndex={phase === 'reveal' ? currentQuiz.correct_index : undefined}
+                  disabled={true}
+                />
+              </div>
+
+              {/* Answer Grid */}
+              <div className="flex-1 overflow-y-auto min-h-0 pr-1">
+                <AnswerGrid
+                  participants={participants}
+                  answersMap={answersMap}
+                  correctIndex={currentQuiz.correct_index}
+                  revealed={phase === 'reveal'}
+                />
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Explanation Modal */}
+      <AnimatePresence>
+        {showExplanation && currentQuiz && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ duration: 0.4 }}
-            className="space-y-6"
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm"
+            onClick={() => setShowExplanation(false)}
           >
-            {/* Correct answer announcement */}
             <motion.div
-              initial={{ scale: 0.8, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              transition={{ type: "spring", stiffness: 260, damping: 20 }}
-              className={[
-                "flex items-center justify-center gap-4 py-4 px-6 rounded-2xl",
-                "bg-red-500/15 border border-red-500/50",
-                "shadow-[0_0_36px_rgba(239,68,68,0.3)]",
-              ].join(" ")}
+              initial={{ scale: 0.9, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.9, y: 20 }}
+              onClick={(e) => e.stopPropagation()}
+              className="w-full max-w-3xl max-h-[85vh] overflow-y-auto relative"
             >
-              <span className="text-red-400 text-3xl">★</span>
-              <span className="text-2xl md:text-3xl font-black text-red-300">
-                正解:{" "}
-                <span className="text-white">
-                  {(currentQuiz.choices as string[])[currentQuiz.correct_index]}
-                </span>
-              </span>
-              <span className="text-red-400 text-3xl">★</span>
+              <QuizExplanation explanation={currentQuiz.explanation} />
+              
+              <button
+                onClick={() => setShowExplanation(false)}
+                className="absolute top-4 right-4 w-10 h-10 rounded-full bg-black/40 text-white flex items-center justify-center hover:bg-black/60 transition-colors"
+              >
+                ✕
+              </button>
             </motion.div>
-
-            <AnswerGrid
-              participants={participants}
-              answersMap={answersMap}
-              correctIndex={currentQuiz.correct_index}
-              revealed={true}
-            />
-
-            <QuizExplanation explanation={currentQuiz.explanation} />
-
-            {/* Score board */}
-            <ScoreBoard participants={participants} />
           </motion.div>
         )}
-
-        {/* Phase: question — answer grid (unrevealed) */}
-        {phase === "question" && currentQuiz && participants.length > 0 && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
-          >
-            <AnswerGrid
-              participants={participants}
-              answersMap={answersMap}
-              correctIndex={currentQuiz.correct_index}
-              revealed={false}
-            />
-          </motion.div>
-        )}
-      </div>
+      </AnimatePresence>
     </div>
   );
 }
@@ -297,8 +313,8 @@ export function BoardContent() {
 
   if (!roomId) {
     return (
-      <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center">
-        <p className="text-white/40 text-xl font-bold">Room ID が見つかりません</p>
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <p className="text-slate-400 text-xl font-bold">Room ID が見つかりません</p>
       </div>
     );
   }
