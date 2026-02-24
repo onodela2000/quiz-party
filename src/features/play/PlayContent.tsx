@@ -2,9 +2,13 @@
 
 import { useState, useEffect } from "react"
 import { useParams } from "next/navigation"
+import useSWR from "swr"
 import { RoomProvider } from "@/providers/RoomProvider"
 import { EntryForm } from "@/features/play/EntryForm"
 import { PlayerGameView } from "@/features/play/PlayerGameView"
+
+const fetcher = (url: string) =>
+  fetch(url).then((res) => res.json())
 
 export function PlayContent() {
   const params = useParams()
@@ -12,6 +16,11 @@ export function PlayContent() {
 
   const [participantId, setParticipantId] = useState<string | null>(null)
   const [isHydrated, setIsHydrated] = useState(false)
+
+  const { data: roomData } = useSWR<{ room: { title: string; subtitle: string | null } }>(
+    roomId ? `/api/rooms/${roomId}` : null,
+    fetcher
+  )
 
   useEffect(() => {
     const stored = localStorage.getItem("participantId")
@@ -23,7 +32,6 @@ export function PlayContent() {
     setParticipantId(id)
   }
 
-  // サーバーサイドレンダリング中はローディング表示
   if (!isHydrated) {
     return (
       <div
@@ -36,12 +44,19 @@ export function PlayContent() {
   }
 
   if (!participantId) {
-    return <EntryForm roomId={roomId} onEntered={handleEntered} />
+    return (
+      <EntryForm
+        roomId={roomId}
+        title={roomData?.room.title ?? ""}
+        subtitle={roomData?.room.subtitle ?? null}
+        onEntered={handleEntered}
+      />
+    )
   }
 
   return (
     <RoomProvider roomId={roomId}>
-      <PlayerGameView />
+      <PlayerGameView title={roomData?.room.title ?? ""} />
     </RoomProvider>
   )
 }

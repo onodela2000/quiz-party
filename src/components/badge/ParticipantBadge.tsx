@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { AvatarIcon } from "@/components/avatar/AvatarIcon";
 
 interface ParticipantBadgeProps {
   name: string;
@@ -20,8 +21,8 @@ export function ParticipantBadge({ name, icon, score }: ParticipantBadgeProps) {
         "border-yellow-600/50",
       ].join(" ")}
     >
-      <div className="w-8 h-8 flex items-center justify-center rounded-full bg-slate-100 border border-slate-300 text-2xl leading-none shadow-inner">
-        {icon}
+      <div className="w-8 h-8 flex items-center justify-center rounded-full bg-slate-100 border border-slate-300 leading-none shadow-inner overflow-hidden">
+        <AvatarIcon icon={icon} size={32} />
       </div>
       <span className="text-sm font-bold tracking-wide truncate max-w-[12rem] text-slate-900 font-serif">
         {name}

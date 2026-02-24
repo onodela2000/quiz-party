@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import type { Participant } from "@/types/room";
+import { AvatarIcon } from "@/components/avatar/AvatarIcon";
 
 interface RankRevealProps {
   participants: Participant[];
@@ -88,7 +89,7 @@ function RankCard({
 
       {/* Icon */}
       <span className="flex-shrink-0 text-4xl leading-none select-none filter drop-shadow-md">
-        {participant.icon}
+        <AvatarIcon icon={participant.icon} size={40} />
       </span>
 
       {/* Name */}

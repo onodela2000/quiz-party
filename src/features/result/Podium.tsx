@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import type { Participant } from "@/types/room";
+import { AvatarIcon } from "@/components/avatar/AvatarIcon";
 
 interface PodiumProps {
   participants: Participant[];
@@ -186,7 +187,7 @@ export function Podium({ participants }: PodiumProps) {
                     : "border-amber-600 bg-black/60",
                 ].join(" ")}
               >
-                <span className={`${config.iconSize} select-none filter drop-shadow-md`}>{participant.icon}</span>
+                <AvatarIcon icon={participant.icon} size={parseInt(config.badgeSize.replace(/\D/g, "")) - 8} />
               </motion.div>
 
               {/* Name */}

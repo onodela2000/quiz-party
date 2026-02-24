@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import type { Participant } from "@/types/room";
+import { AvatarIcon } from "@/components/avatar/AvatarIcon";
 
 interface ScoreBoardProps {
   participants: Participant[];
@@ -96,7 +97,7 @@ export function ScoreBoard({ participants }: ScoreBoardProps) {
                 </div>
 
                 {/* Icon */}
-                <span className="text-4xl leading-none select-none filter drop-shadow-md">{participant.icon}</span>
+                <AvatarIcon icon={participant.icon} size={48} />
 
                 {/* Name */}
                 <span

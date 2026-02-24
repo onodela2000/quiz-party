@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import type { Participant } from "@/types/room";
+import { AvatarIcon } from "@/components/avatar/AvatarIcon";
 
 const CHOICE_LABELS = ["A", "B", "C", "D"] as const;
 
@@ -72,7 +73,7 @@ export function AnswerCell({
 
         {/* Icon */}
         <div className="relative">
-          <span className="text-4xl leading-none select-none filter drop-shadow-md">{participant.icon}</span>
+          <AvatarIcon icon={participant.icon} size={48} />
           {isCorrect && (
             <motion.div
               initial={{ scale: 0, rotate: -180 }}

@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react"
 import useSWR from "swr"
 import { motion, AnimatePresence } from "framer-motion"
+import { AvatarIcon } from "@/components/avatar/AvatarIcon"
 import { useRoom } from "@/providers/RoomProvider"
 import { AnswerSelector } from "@/features/play/AnswerSelector"
 import { PlayerStatus } from "@/features/play/PlayerStatus"
@@ -21,7 +22,7 @@ interface PlayerAnswerRecord {
   is_correct: boolean
 }
 
-export function PlayerGameView() {
+export function PlayerGameView({ title }: { title: string }) {
   const { roomId, phase, currentQuizIndex, participants } = useRoom()
 
   const { data: quizzes } = useSWR<Quiz[]>(
@@ -84,12 +85,12 @@ export function PlayerGameView() {
         <div className="flex items-center gap-2">
           <span className="text-xl filter drop-shadow-[0_0_5px_rgba(234,179,8,0.5)]">👑</span>
           <span className="text-sm font-black text-transparent bg-clip-text bg-gradient-to-r from-yellow-200 via-yellow-400 to-yellow-200 tracking-widest uppercase">
-            Quiz King
+            {title || "Quiz King"}
           </span>
         </div>
         {participant && (
           <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-yellow-900/20 border border-yellow-600/40">
-            <span className="text-lg">{participant.icon}</span>
+            <AvatarIcon icon={participant.icon} size={28} className="rounded-md" />
             <span className="text-xs font-bold text-yellow-100/90">{participant.name}</span>
             <span className="text-xs font-black text-yellow-400 ml-1">{participant.score}pt</span>
           </div>
@@ -135,7 +136,7 @@ export function PlayerGameView() {
                     {participants.map((p) => (
                       <div key={p.id} className="relative group">
                         <div className="w-10 h-10 rounded-full bg-slate-800 border border-yellow-600/30 flex items-center justify-center text-xl shadow-lg">
-                          {p.icon}
+                          <AvatarIcon icon={p.icon} size={32} />
                         </div>
                       </div>
                     ))}
@@ -273,7 +274,7 @@ export function PlayerGameView() {
                   <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-yellow-500 to-transparent" />
                   
                   <div className="w-20 h-20 rounded-full border-2 border-yellow-500/50 flex items-center justify-center text-5xl shadow-[0_0_20px_rgba(234,179,8,0.2)] bg-black/40">
-                    {participant.icon}
+                    <AvatarIcon icon={participant.icon} size={80} className="rounded-xl" />
                   </div>
                   <span className="text-xl font-bold text-yellow-100 tracking-wide">
                     {participant.name}
