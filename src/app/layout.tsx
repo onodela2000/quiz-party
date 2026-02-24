@@ -13,19 +13,19 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Quiz King | 究極のクイズバトルプラットフォーム",
-  description: "リアルタイムでクイズ大会を開催・参加できるWebアプリケーション。友達や同僚と盛り上がろう！",
+  title: "Quiz Party JP | スマホだけで、会場が熱狂するクイズ大会プラットフォーム",
+  description: "クイズ大会を今すぐ無料で開催しよう。URLを共有するだけで参加者全員がリアルタイムで繋がる。企業研修・忘年会・学校イベント・配信に最適。",
   openGraph: {
-    title: "Quiz King | 究極のクイズバトルプラットフォーム",
-    description: "リアルタイムでクイズ大会を開催・参加できるWebアプリケーション。友達や同僚と盛り上がろう！",
+    title: "Quiz Party JP | スマホだけで、会場が熱狂する。",
+    description: "クイズ大会を今すぐ無料で開催しよう。URLを共有するだけで参加者全員がリアルタイムで繋がる。",
     type: "website",
     locale: "ja_JP",
-    siteName: "Quiz King",
+    siteName: "Quiz Party JP",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Quiz King | 究極のクイズバトルプラットフォーム",
-    description: "リアルタイムでクイズ大会を開催・参加できるWebアプリケーション。",
+    title: "Quiz Party JP | スマホだけで、会場が熱狂する。",
+    description: "クイズ大会を今すぐ無料で開催しよう。URLを共有するだけで参加者全員がリアルタイムで繋がる。",
   },
 };
 
