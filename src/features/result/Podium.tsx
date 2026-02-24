@@ -129,7 +129,7 @@ export function Podium({ participants }: PodiumProps) {
         className="relative z-10 text-4xl md:text-6xl font-black tracking-tight text-center mb-16"
       >
         <span className="text-transparent bg-clip-text bg-gradient-to-b from-yellow-200 via-yellow-400 to-yellow-700 drop-shadow-[0_2px_2px_rgba(0,0,0,0.8)]">
-          FINAL RESULT
+          結果発表
         </span>
         <div className="flex items-center justify-center gap-4 mt-2">
           <div className="h-px w-16 bg-gradient-to-r from-transparent via-yellow-500 to-transparent" />
