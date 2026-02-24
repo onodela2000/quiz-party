@@ -1,5 +1,5 @@
-import { redirect } from "next/navigation"
+import { LpContent } from '@/features/lp/LpContent'
 
 export default function Home() {
-  redirect("/host/create")
+  return <LpContent />
 }
