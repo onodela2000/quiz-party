@@ -43,8 +43,10 @@ function ImageUpload({
     try {
       const url = await uploadQuizImage(file)
       onChange(url)
-    } catch {
-      alert("画像のアップロードに失敗しました")
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err)
+      console.error("Upload error:", err)
+      alert(`画像のアップロードに失敗しました: ${msg}`)
     } finally {
       setUploading(false)
       if (inputRef.current) inputRef.current.value = ""
