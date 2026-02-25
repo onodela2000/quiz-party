@@ -109,6 +109,7 @@ export type Database = {
           host_id: string
           host_password_hash: string | null
           id: string
+          room_code: string | null
           status: string
           subtitle: string | null
           title: string
@@ -119,6 +120,7 @@ export type Database = {
           host_id: string
           host_password_hash?: string | null
           id?: string
+          room_code?: string | null
           status?: string
           subtitle?: string | null
           title: string
@@ -129,6 +131,7 @@ export type Database = {
           host_id?: string
           host_password_hash?: string | null
           id?: string
+          room_code?: string | null
           status?: string
           subtitle?: string | null
           title?: string

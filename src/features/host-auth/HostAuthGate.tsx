@@ -5,13 +5,16 @@ import { useParams } from "next/navigation"
 import { motion } from "framer-motion"
 import { getHostToken, setHostToken } from "@/lib/host-token"
 
-type Status = "checking" | "authenticated" | "password_required"
+type Status = "checking" | "authenticated" | "auth_required"
+type AuthMode = "room_code" | "password"
 
 export function HostAuthGate({ children }: { children: React.ReactNode }) {
   const params = useParams()
   const roomId = typeof params?.roomId === "string" ? params.roomId : ""
 
   const [status, setStatus] = useState<Status>("checking")
+  const [authMode, setAuthMode] = useState<AuthMode>("room_code")
+  const [roomCode, setRoomCode] = useState("")
   const [password, setPassword] = useState("")
   const [error, setError] = useState("")
   const [submitting, setSubmitting] = useState(false)
@@ -19,13 +22,13 @@ export function HostAuthGate({ children }: { children: React.ReactNode }) {
   // On mount: check localStorage token
   useEffect(() => {
     if (!roomId) {
-      setStatus("password_required")
+      setStatus("auth_required")
       return
     }
 
     const token = getHostToken(roomId)
     if (!token) {
-      setStatus("password_required")
+      setStatus("auth_required")
       return
     }
 
@@ -40,11 +43,11 @@ export function HostAuthGate({ children }: { children: React.ReactNode }) {
         if (data.valid) {
           setStatus("authenticated")
         } else {
-          setStatus("password_required")
+          setStatus("auth_required")
         }
       })
       .catch(() => {
-        setStatus("password_required")
+        setStatus("auth_required")
       })
   }, [roomId])
 
@@ -54,10 +57,14 @@ export function HostAuthGate({ children }: { children: React.ReactNode }) {
     setSubmitting(true)
 
     try {
+      const body = authMode === "room_code"
+        ? { room_code: roomCode }
+        : { password }
+
       const res = await fetch(`/api/rooms/${roomId}/verify`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ password }),
+        body: JSON.stringify(body),
       })
       const data = await res.json()
 
@@ -65,7 +72,7 @@ export function HostAuthGate({ children }: { children: React.ReactNode }) {
         setHostToken(roomId, data.host_id)
         setStatus("authenticated")
       } else {
-        setError("パスワードが正しくありません")
+        setError(authMode === "room_code" ? "ルームコードが正しくありません" : "パスワードが正しくありません")
       }
     } catch {
       setError("エラーが発生しました")
@@ -91,7 +98,7 @@ export function HostAuthGate({ children }: { children: React.ReactNode }) {
     )
   }
 
-  if (status === "password_required") {
+  if (status === "auth_required") {
     return (
       <div
         className="min-h-screen font-serif text-white flex items-center justify-center px-4"
@@ -112,19 +119,58 @@ export function HostAuthGate({ children }: { children: React.ReactNode }) {
               ホスト認証
             </h1>
             <p className="text-sm text-white/50">
-              管理画面にアクセスするには<br />パスワードを入力してください
+              管理画面にアクセスするには<br />ルームコードまたはパスワードを入力してください
             </p>
           </div>
 
+          {/* Auth mode tabs */}
+          <div className="flex rounded-lg overflow-hidden border border-yellow-600/30">
+            <button
+              type="button"
+              onClick={() => { setAuthMode("room_code"); setError("") }}
+              className={[
+                "flex-1 py-2 text-sm font-bold uppercase tracking-wider transition-all",
+                authMode === "room_code"
+                  ? "bg-yellow-600/30 text-yellow-300"
+                  : "bg-black/20 text-white/40 hover:text-white/60",
+              ].join(" ")}
+            >
+              ルームコード
+            </button>
+            <button
+              type="button"
+              onClick={() => { setAuthMode("password"); setError("") }}
+              className={[
+                "flex-1 py-2 text-sm font-bold uppercase tracking-wider transition-all",
+                authMode === "password"
+                  ? "bg-yellow-600/30 text-yellow-300"
+                  : "bg-black/20 text-white/40 hover:text-white/60",
+              ].join(" ")}
+            >
+              パスワード
+            </button>
+          </div>
+
           <form onSubmit={handleSubmit} className="space-y-4">
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="パスワード"
-              autoFocus
-              className="w-full px-6 py-4 rounded-xl bg-black/40 border border-yellow-600/30 focus:border-yellow-500/70 focus:outline-none text-white placeholder-slate-500 text-lg shadow-inner transition-all duration-200 font-sans text-center tracking-widest"
-            />
+            {authMode === "room_code" ? (
+              <input
+                type="text"
+                value={roomCode}
+                onChange={(e) => setRoomCode(e.target.value)}
+                placeholder="ルームコード"
+                autoFocus
+                className="w-full px-6 py-4 rounded-xl bg-black/40 border border-yellow-600/30 focus:border-yellow-500/70 focus:outline-none text-white placeholder-slate-500 text-lg shadow-inner transition-all duration-200 font-mono text-center tracking-widest"
+              />
+            ) : (
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="パスワード"
+                autoFocus
+                className="w-full px-6 py-4 rounded-xl bg-black/40 border border-yellow-600/30 focus:border-yellow-500/70 focus:outline-none text-white placeholder-slate-500 text-lg shadow-inner transition-all duration-200 font-sans text-center tracking-widest"
+              />
+            )}
 
             {error && (
               <motion.p
@@ -138,7 +184,7 @@ export function HostAuthGate({ children }: { children: React.ReactNode }) {
 
             <button
               type="submit"
-              disabled={submitting || !password}
+              disabled={submitting || (authMode === "room_code" ? !roomCode : !password)}
               className={[
                 "w-full py-4 rounded-xl font-black text-lg tracking-widest uppercase transition-all duration-200",
                 "bg-gradient-to-r from-yellow-700 via-yellow-500 to-yellow-700 bg-[length:200%_100%]",

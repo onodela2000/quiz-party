@@ -439,13 +439,25 @@ export function BoardContent() {
   const params = useParams();
   const searchParams = useSearchParams();
   const roomId = Array.isArray(params.roomId) ? params.roomId[0] : (params.roomId as string);
-  const token = searchParams.get("token");
+  const code = searchParams.get("code");
 
+  // ルームコードがURLにある場合、APIで検証してhost_idをlocalStorageに保存
   useEffect(() => {
-    if (token) {
-      setHostToken(roomId, token);
+    if (code && roomId) {
+      fetch(`/api/rooms/${roomId}/verify`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ room_code: code }),
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.valid && data.host_id) {
+            setHostToken(roomId, data.host_id);
+          }
+        })
+        .catch(() => {});
     }
-  }, [roomId, token]);
+  }, [roomId, code]);
 
   if (!roomId) {
     return (

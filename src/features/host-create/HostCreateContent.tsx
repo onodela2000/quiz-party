@@ -13,13 +13,14 @@ import { setHostToken } from "@/lib/host-token"
 type CreateRoomResponse = {
   room: Room
   host_id: string
-  host_token: string
+  room_code: string
 }
 
 type CreateRoomArgs = {
   title: string
   subtitle: string
   password: string
+  room_code: string
   quizzes: (QuizForm & { order: number })[]
 }
 
@@ -48,6 +49,8 @@ export function HostCreateContent() {
   const [title, setTitle] = useState("")
   const [subtitle, setSubtitle] = useState("")
   const [password, setPassword] = useState("")
+  const [roomCode, setRoomCode] = useState("")
+  const [roomCodeError, setRoomCodeError] = useState<string | null>(null)
   const [quizzes, setQuizzes] = useState<QuizForm[]>([createEmptyQuiz()])
   const [errorMsg, setErrorMsg] = useState<string | null>(null)
   const [previewQuiz, setPreviewQuiz] = useState<QuizForm | null>(null)
@@ -74,6 +77,14 @@ export function HostCreateContent() {
       setErrorMsg("タイトルを入力してください")
       return
     }
+    if (!roomCode || roomCode.length < 4 || roomCode.length > 32) {
+      setErrorMsg("ルームコードは4〜32文字で入力してください")
+      return
+    }
+    if (!/^[a-zA-Z0-9_-]+$/.test(roomCode)) {
+      setErrorMsg("ルームコードは英数字・ハイフン・アンダースコアのみ使用できます")
+      return
+    }
     if (!password || password.length < 4) {
       setErrorMsg("パスワードは4文字以上で入力してください")
       return
@@ -88,15 +99,13 @@ export function HostCreateContent() {
         title: title.trim(),
         subtitle: subtitle.trim(),
         password,
+        room_code: roomCode,
         quizzes: quizzes.map((q, i) => ({ ...q, order: i })),
       })
       setHostToken(result.room.id, result.host_id)
-      
-      // ホストトークンを保存
-      localStorage.setItem(`hostToken:${result.room.id}`, result.host_token)
-      
-      // 管理画面へ遷移（トークン付き）
-      router.push(`/host/${result.room.id}/board?token=${result.host_token}`)
+
+      // 管理画面へ遷移（ルームコード付き）
+      router.push(`/host/${result.room.id}/board?code=${result.room_code}`)
     } catch (err) {
       setErrorMsg(err instanceof Error ? err.message : "エラーが発生しました")
     }
@@ -169,25 +178,54 @@ export function HostCreateContent() {
             />
           </motion.div>
 
-          {/* パスワード入力 */}
+          {/* ルームコード入力 */}
           <motion.div
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, delay: 0.2 }}
             className="space-y-3"
           >
+            <label htmlFor="roomCode" className="block text-xs font-bold text-yellow-500/80 uppercase tracking-wider">
+              ルームコード <span className="text-red-500">*</span>
+            </label>
+            <p className="text-[10px] text-slate-400 mb-1">
+              管理画面のアクセスURLに使用されます。英数字・ハイフン・アンダースコアのみ。
+            </p>
+            <input
+              id="roomCode"
+              type="text"
+              value={roomCode}
+              onChange={(e) => {
+                setRoomCode(e.target.value)
+                setRoomCodeError(null)
+              }}
+              placeholder="例: quiz-2024, team_a, myroom01"
+              className="w-full px-6 py-4 rounded-xl bg-black/40 border border-yellow-600/30 focus:border-yellow-500/70 focus:outline-none text-white placeholder-slate-500 text-lg shadow-inner transition-all duration-200 font-mono"
+            />
+            {roomCodeError && (
+              <p className="text-red-400 text-xs font-bold">{roomCodeError}</p>
+            )}
+          </motion.div>
+
+          {/* パスワード入力 */}
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, delay: 0.25 }}
+            className="space-y-3"
+          >
             <label htmlFor="password" className="block text-xs font-bold text-yellow-500/80 uppercase tracking-wider">
               管理者パスワード <span className="text-red-500">*</span>
             </label>
             <p className="text-[10px] text-slate-400 mb-1">
-              ※このパスワードは、トークンURLを紛失した際の復旧に使用します。
+              ※半角英数字で入力してください。トークンURLを紛失した際の復旧に使用します。
             </p>
             <input
               id="password"
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="4文字以上（管理画面アクセス用）"
+              placeholder="4文字以上"
               className="w-full px-6 py-4 rounded-xl bg-black/40 border border-yellow-600/30 focus:border-yellow-500/70 focus:outline-none text-white placeholder-slate-500 text-lg shadow-inner transition-all duration-200 font-sans"
             />
           </motion.div>
@@ -256,9 +294,9 @@ export function HostCreateContent() {
             <div className="bg-yellow-900/20 border border-yellow-600/30 rounded-lg p-4 text-sm text-yellow-100/80">
               <p className="font-bold mb-1">⚠️ 重要：作成後の管理について</p>
               <p>
-                大会を作成すると、あなた専用の<span className="text-yellow-400 font-bold">「管理者用URL（トークン付き）」</span>が発行されます。<br />
-                このURLを知っている人だけが大会を進行・編集できます。<br />
-                有効期限は作成から30日間ですが、管理画面にアクセスするたびに延長されます。
+                大会を作成すると、<span className="text-yellow-400 font-bold">ルームコード付きの管理者用URL</span>が発行されます。<br />
+                このURLまたはルームコードを使って管理画面にアクセスできます。<br />
+                ルームコードを忘れた場合は、パスワードで復旧できます。
               </p>
             </div>
 

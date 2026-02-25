@@ -11,6 +11,7 @@ interface CreateRoomBody {
   title: string
   subtitle?: string
   password: string
+  room_code: string
   quizzes: {
     question: string
     choices: string[]
@@ -25,7 +26,7 @@ interface CreateRoomBody {
 export async function POST(request: NextRequest) {
   try {
     const body: CreateRoomBody = await request.json()
-    const { title, subtitle, password, quizzes } = body
+    const { title, subtitle, password, room_code, quizzes } = body
 
     if (!title) {
       return NextResponse.json({ error: 'title is required' }, { status: 400 })
@@ -33,24 +34,36 @@ export async function POST(request: NextRequest) {
     if (!password || password.length < 4) {
       return NextResponse.json({ error: 'password must be at least 4 characters' }, { status: 400 })
     }
+    if (!room_code || room_code.length < 4 || room_code.length > 32) {
+      return NextResponse.json({ error: 'room_code must be 4-32 characters' }, { status: 400 })
+    }
+    if (!/^[a-zA-Z0-9_-]+$/.test(room_code)) {
+      return NextResponse.json({ error: 'room_code must contain only alphanumeric characters, hyphens, and underscores' }, { status: 400 })
+    }
 
     const supabase = await createClient()
     const host_id = crypto.randomUUID()
-    const host_token = crypto.randomUUID()
     const host_password_hash = hashPassword(password)
-    
-    // 30日後の有効期限
-    const expires_at = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString()
+
+    // ルームコードの重複チェック
+    const { data: existing } = await supabase
+      .from('rooms')
+      .select('id')
+      .eq('room_code', room_code)
+      .maybeSingle()
+
+    if (existing) {
+      return NextResponse.json({ error: 'このルームコードは既に使用されています' }, { status: 409 })
+    }
 
     const { data: room, error: roomError } = await supabase
       .from('rooms')
-      .insert({ 
-        title, 
-        subtitle: subtitle ?? null, 
-        host_id, 
+      .insert({
+        title,
+        subtitle: subtitle ?? null,
+        host_id,
         host_password_hash,
-        host_token,
-        expires_at
+        room_code,
       })
       .select()
       .single()
@@ -86,7 +99,7 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    return NextResponse.json({ room: room as Room, host_id, host_token }, { status: 201 })
+    return NextResponse.json({ room: room as Room, host_id, room_code }, { status: 201 })
   } catch {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }

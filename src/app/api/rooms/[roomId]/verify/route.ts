@@ -9,6 +9,7 @@ function hashPassword(password: string): string {
 interface VerifyBody {
   host_id?: string
   password?: string
+  room_code?: string
 }
 
 export async function POST(
@@ -22,7 +23,7 @@ export async function POST(
     const supabase = await createClient()
     const { data: room, error } = await supabase
       .from('rooms')
-      .select('host_id, host_password_hash')
+      .select('host_id, host_password_hash, room_code')
       .eq('id', roomId)
       .single()
 
@@ -30,9 +31,17 @@ export async function POST(
       return NextResponse.json({ error: 'Room not found' }, { status: 404 })
     }
 
-    // Verify by host_id token
+    // Verify by host_id token (localStorage)
     if (body.host_id) {
       if (room.host_id === body.host_id) {
+        return NextResponse.json({ valid: true, host_id: room.host_id })
+      }
+      return NextResponse.json({ valid: false }, { status: 401 })
+    }
+
+    // Verify by room_code
+    if (body.room_code) {
+      if (room.room_code && room.room_code === body.room_code) {
         return NextResponse.json({ valid: true, host_id: room.host_id })
       }
       return NextResponse.json({ valid: false }, { status: 401 })
@@ -50,7 +59,7 @@ export async function POST(
       return NextResponse.json({ valid: false }, { status: 401 })
     }
 
-    return NextResponse.json({ error: 'host_id or password required' }, { status: 400 })
+    return NextResponse.json({ error: 'host_id, room_code, or password required' }, { status: 400 })
   } catch {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
