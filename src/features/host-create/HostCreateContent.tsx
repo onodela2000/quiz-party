@@ -218,7 +218,7 @@ export function HostCreateContent() {
               管理者パスワード <span className="text-red-500">*</span>
             </label>
             <p className="text-[10px] text-slate-400 mb-1">
-              ※半角英数字で入力してください。トークンURLを紛失した際の復旧に使用します。
+              ※半角英数字で入力してください。
             </p>
             <input
               id="password"

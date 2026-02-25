@@ -11,6 +11,7 @@ import { QuizCard } from "@/components/quiz/QuizCard"
 import { QuizChoices } from "@/components/quiz/QuizChoices"
 import { QuizExplanation } from "@/components/quiz/QuizExplanation"
 import { ParticipantBadge } from "@/components/badge/ParticipantBadge"
+import { getParticipantId } from "@/lib/participant-token"
 import type { Quiz } from "@/types/quiz"
 
 const fetcher = (url: string) =>
@@ -40,9 +41,9 @@ export function PlayerGameView({ title }: { title: string }) {
   >({})
 
   useEffect(() => {
-    const id = localStorage.getItem("participantId")
+    const id = getParticipantId(roomId)
     setParticipantId(id)
-  }, [])
+  }, [roomId])
 
   const currentQuiz = quizzes?.[currentQuizIndex] ?? null
   const totalQuizzes = quizzes?.length ?? 0

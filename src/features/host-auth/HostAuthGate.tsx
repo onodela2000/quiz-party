@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { useParams } from "next/navigation"
+import { useParams, useSearchParams } from "next/navigation"
 import { motion } from "framer-motion"
 import { getHostToken, setHostToken } from "@/lib/host-token"
 
@@ -10,7 +10,9 @@ type AuthMode = "room_code" | "password"
 
 export function HostAuthGate({ children }: { children: React.ReactNode }) {
   const params = useParams()
+  const searchParams = useSearchParams()
   const roomId = typeof params?.roomId === "string" ? params.roomId : ""
+  const urlCode = searchParams.get("code")
 
   const [status, setStatus] = useState<Status>("checking")
   const [authMode, setAuthMode] = useState<AuthMode>("room_code")
@@ -19,37 +21,66 @@ export function HostAuthGate({ children }: { children: React.ReactNode }) {
   const [error, setError] = useState("")
   const [submitting, setSubmitting] = useState(false)
 
-  // On mount: check localStorage token
   useEffect(() => {
     if (!roomId) {
       setStatus("auth_required")
       return
     }
 
+    // 1. localStorage のトークンをチェック
     const token = getHostToken(roomId)
-    if (!token) {
-      setStatus("auth_required")
+    if (token) {
+      fetch(`/api/rooms/${roomId}/verify`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ host_id: token }),
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.valid) {
+            setStatus("authenticated")
+          } else {
+            // localStorage が無効 → URLコードを試す
+            tryUrlCode()
+          }
+        })
+        .catch(() => tryUrlCode())
       return
     }
 
-    // Verify token against API
-    fetch(`/api/rooms/${roomId}/verify`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ host_id: token }),
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.valid) {
-          setStatus("authenticated")
-        } else {
-          setStatus("auth_required")
-        }
-      })
-      .catch(() => {
+    // 2. localStorage にない → URLコードを試す
+    tryUrlCode()
+
+    function tryUrlCode() {
+      if (!urlCode) {
+        setRoomCode("") // URLコードなし
         setStatus("auth_required")
+        return
+      }
+
+      // URLの ?code= で自動認証を試みる
+      fetch(`/api/rooms/${roomId}/verify`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ room_code: urlCode }),
       })
-  }, [roomId])
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.valid && data.host_id) {
+            setHostToken(roomId, data.host_id)
+            setStatus("authenticated")
+          } else {
+            // コードが不正 → フォームに自動入力して表示
+            setRoomCode(urlCode)
+            setStatus("auth_required")
+          }
+        })
+        .catch(() => {
+          setRoomCode(urlCode)
+          setStatus("auth_required")
+        })
+    }
+  }, [roomId, urlCode])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()

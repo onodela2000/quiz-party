@@ -3,6 +3,7 @@
 import { useState } from "react"
 import { motion } from "framer-motion"
 import { createClient } from "@/lib/supabase/client"
+import { setParticipantId } from "@/lib/participant-token"
 
 const STYLES = ["fun-emoji", "bottts", "dylan", "notionists", "pixel-art", "adventurer"] as const
 
@@ -49,7 +50,7 @@ export function EntryForm({ roomId, title, subtitle, onEntered }: EntryFormProps
         setError("参加に失敗しました。もう一度お試しください。")
         return
       }
-      localStorage.setItem("participantId", data.id)
+      setParticipantId(roomId, data.id)
       onEntered(data.id)
     } catch {
       setError("エラーが発生しました。もう一度お試しください。")

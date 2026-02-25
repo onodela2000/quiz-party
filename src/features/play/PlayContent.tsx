@@ -6,6 +6,7 @@ import useSWR from "swr"
 import { RoomProvider } from "@/providers/RoomProvider"
 import { EntryForm } from "@/features/play/EntryForm"
 import { PlayerGameView } from "@/features/play/PlayerGameView"
+import { getParticipantId } from "@/lib/participant-token"
 
 const fetcher = (url: string) =>
   fetch(url).then((res) => res.json())
@@ -23,10 +24,10 @@ export function PlayContent() {
   )
 
   useEffect(() => {
-    const stored = localStorage.getItem("participantId")
+    const stored = getParticipantId(roomId)
     setParticipantId(stored)
     setIsHydrated(true)
-  }, [])
+  }, [roomId])
 
   const handleEntered = (id: string) => {
     setParticipantId(id)

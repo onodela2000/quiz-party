@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useParams, useRouter, useSearchParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import useSWR from "swr";
 import { motion, AnimatePresence } from "framer-motion";
 import { createClient } from "@/lib/supabase/client";
@@ -432,32 +432,10 @@ function BoardController({ quizzes }: { quizzes: Quiz[] }) {
   );
 }
 
-import { setHostToken } from "@/lib/host-token";
-
 // ── Root export (wraps providers) ─────────────────────────────────────────────
 export function BoardContent() {
   const params = useParams();
-  const searchParams = useSearchParams();
   const roomId = Array.isArray(params.roomId) ? params.roomId[0] : (params.roomId as string);
-  const code = searchParams.get("code");
-
-  // ルームコードがURLにある場合、APIで検証してhost_idをlocalStorageに保存
-  useEffect(() => {
-    if (code && roomId) {
-      fetch(`/api/rooms/${roomId}/verify`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ room_code: code }),
-      })
-        .then((res) => res.json())
-        .then((data) => {
-          if (data.valid && data.host_id) {
-            setHostToken(roomId, data.host_id);
-          }
-        })
-        .catch(() => {});
-    }
-  }, [roomId, code]);
 
   if (!roomId) {
     return (
