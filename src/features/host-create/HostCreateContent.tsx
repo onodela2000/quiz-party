@@ -13,6 +13,7 @@ import { setHostToken } from "@/lib/host-token"
 type CreateRoomResponse = {
   room: Room
   host_id: string
+  host_token: string
 }
 
 type CreateRoomArgs = {
@@ -90,7 +91,12 @@ export function HostCreateContent() {
         quizzes: quizzes.map((q, i) => ({ ...q, order: i })),
       })
       setHostToken(result.room.id, result.host_id)
-      router.push(`/host/${result.room.id}/board`)
+      
+      // ホストトークンを保存
+      localStorage.setItem(`hostToken:${result.room.id}`, result.host_token)
+      
+      // 管理画面へ遷移（トークン付き）
+      router.push(`/host/${result.room.id}/board?token=${result.host_token}`)
     } catch (err) {
       setErrorMsg(err instanceof Error ? err.message : "エラーが発生しました")
     }
@@ -173,6 +179,9 @@ export function HostCreateContent() {
             <label htmlFor="password" className="block text-xs font-bold text-yellow-500/80 uppercase tracking-wider">
               管理者パスワード <span className="text-red-500">*</span>
             </label>
+            <p className="text-[10px] text-slate-400 mb-1">
+              ※このパスワードは、トークンURLを紛失した際の復旧に使用します。
+            </p>
             <input
               id="password"
               type="password"
@@ -242,8 +251,17 @@ export function HostCreateContent() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.3 }}
-            className="pt-4"
+            className="pt-4 space-y-4"
           >
+            <div className="bg-yellow-900/20 border border-yellow-600/30 rounded-lg p-4 text-sm text-yellow-100/80">
+              <p className="font-bold mb-1">⚠️ 重要：作成後の管理について</p>
+              <p>
+                大会を作成すると、あなた専用の<span className="text-yellow-400 font-bold">「管理者用URL（トークン付き）」</span>が発行されます。<br />
+                このURLを知っている人だけが大会を進行・編集できます。<br />
+                有効期限は作成から30日間ですが、管理画面にアクセスするたびに延長されます。
+              </p>
+            </div>
+
             <button
               type="submit"
               disabled={isMutating}

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import useSWR from "swr";
 import { motion, AnimatePresence } from "framer-motion";
 import { createClient } from "@/lib/supabase/client";
@@ -432,10 +432,20 @@ function BoardController({ quizzes }: { quizzes: Quiz[] }) {
   );
 }
 
+import { setHostToken } from "@/lib/host-token";
+
 // ── Root export (wraps providers) ─────────────────────────────────────────────
 export function BoardContent() {
   const params = useParams();
+  const searchParams = useSearchParams();
   const roomId = Array.isArray(params.roomId) ? params.roomId[0] : (params.roomId as string);
+  const token = searchParams.get("token");
+
+  useEffect(() => {
+    if (token) {
+      setHostToken(roomId, token);
+    }
+  }, [roomId, token]);
 
   if (!roomId) {
     return (

@@ -36,11 +36,22 @@ export async function POST(request: NextRequest) {
 
     const supabase = await createClient()
     const host_id = crypto.randomUUID()
+    const host_token = crypto.randomUUID()
     const host_password_hash = hashPassword(password)
+    
+    // 30日後の有効期限
+    const expires_at = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString()
 
     const { data: room, error: roomError } = await supabase
       .from('rooms')
-      .insert({ title, subtitle: subtitle ?? null, host_id, host_password_hash })
+      .insert({ 
+        title, 
+        subtitle: subtitle ?? null, 
+        host_id, 
+        host_password_hash,
+        host_token,
+        expires_at
+      })
       .select()
       .single()
 
@@ -75,7 +86,7 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    return NextResponse.json({ room: room as Room, host_id }, { status: 201 })
+    return NextResponse.json({ room: room as Room, host_id, host_token }, { status: 201 })
   } catch {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }

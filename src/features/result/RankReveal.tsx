@@ -191,22 +191,6 @@ export function RankReveal({ participants, totalToReveal = 3 }: RankRevealProps)
           ))}
         </motion.div>
       )}
-
-      {/* All revealed message */}
-      {revealedCount >= toReveal.length && toReveal.length > 0 && (
-        <motion.div
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.3, type: "spring", stiffness: 260 }}
-          className="flex items-center justify-center gap-2 py-3"
-        >
-          <span className="text-yellow-400 text-xl">★</span>
-          <span className="text-sm font-bold text-slate-500 uppercase tracking-widest">
-            結果発表 完了
-          </span>
-          <span className="text-yellow-400 text-xl">★</span>
-        </motion.div>
-      )}
     </div>
   );
 }
