@@ -13,19 +13,19 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Quiz Party JP | スマホだけで、会場が熱狂するクイズ大会プラットフォーム",
-  description: "クイズ大会を今すぐ無料で開催しよう。URLを共有するだけで参加者全員がリアルタイムで繋がる。企業研修・忘年会・学校イベント・配信に最適。",
+  title: "Quiz Party JP | クイズ大会を、たった3分で作れる。完全無料。",
+  description: "飲み会・研修・配信、どこでも盛り上がるクイズ大会を無料で。登録不要・アプリ不要、URLを共有するだけで全員がスマホから参加できる。",
   openGraph: {
-    title: "Quiz Party JP | スマホだけで、会場が熱狂する。",
-    description: "クイズ大会を今すぐ無料で開催しよう。URLを共有するだけで参加者全員がリアルタイムで繋がる。",
+    title: "Quiz Party JP | クイズ大会を、たった3分で作れる。",
+    description: "飲み会・研修・配信、どこでも盛り上がるクイズ大会を無料で。URLを共有するだけで全員がスマホから参加できる。",
     type: "website",
     locale: "ja_JP",
     siteName: "Quiz Party JP",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Quiz Party JP | スマホだけで、会場が熱狂する。",
-    description: "クイズ大会を今すぐ無料で開催しよう。URLを共有するだけで参加者全員がリアルタイムで繋がる。",
+    title: "Quiz Party JP | クイズ大会を、たった3分で作れる。",
+    description: "飲み会・研修・配信、どこでも盛り上がるクイズ大会を無料で。URLを共有するだけで全員がスマホから参加できる。",
   },
 };
 

@@ -61,7 +61,7 @@ export function EntryForm({ roomId, title, subtitle, onEntered }: EntryFormProps
 
   return (
     <div
-      className="min-h-screen flex items-center justify-center px-4 py-8 font-serif"
+      className="relative min-h-screen flex items-center justify-center px-4 py-8 font-serif"
       style={{ background: "radial-gradient(ellipse at center, #450a0a 0%, #1a0303 100%)" }}
     >
       <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/diagmonds-light.png')] opacity-20 pointer-events-none" />

@@ -81,7 +81,7 @@ export function PlayerGameView({ title }: { title: string }) {
 
   return (
     <div
-      className="min-h-screen flex flex-col font-serif text-white"
+      className="relative min-h-screen flex flex-col font-serif text-white"
       style={{ background: "radial-gradient(ellipse at center, #450a0a 0%, #1a0303 100%)" }}
     >
       <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/diagmonds-light.png')] opacity-20 pointer-events-none" />
