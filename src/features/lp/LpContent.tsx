@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react"
 import Link from "next/link"
+import Image from "next/image"
 import { motion, useInView, AnimatePresence } from "framer-motion"
 
 // ─── 共通アニメーション ───────────────────────────────────────
@@ -35,7 +36,7 @@ function Header() {
     >
       <div className="max-w-6xl mx-auto px-6 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <span className="text-2xl">👑</span>
+          <Image src="/icon.svg" alt="Quiz Party JP icon" width={28} height={28} className="rounded-md" />
           <span className="font-black text-transparent bg-clip-text bg-gradient-to-r from-yellow-200 to-yellow-500 tracking-widest text-lg uppercase">
             Quiz Party JP
           </span>
