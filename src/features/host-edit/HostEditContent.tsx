@@ -163,13 +163,11 @@ export function HostEditContent() {
   }
 
   return (
-    <div className="min-h-screen font-serif text-white relative">
-      {/* Fixed Background */}
-      <div
-        className="fixed inset-0 -z-10"
-        style={{ background: "radial-gradient(ellipse at center, #450a0a 0%, #1a0303 100%)" }}
-      />
-      <div className="fixed inset-0 -z-10 bg-[url('https://www.transparenttextures.com/patterns/diagmonds-light.png')] opacity-20 pointer-events-none" />
+    <div
+      className="min-h-screen font-serif text-white relative"
+      style={{ background: "radial-gradient(ellipse at center, #450a0a 0%, #1a0303 100%)" }}
+    >
+      <div className="fixed inset-0 bg-[url('https://www.transparenttextures.com/patterns/diagmonds-light.png')] opacity-20 pointer-events-none" />
 
       {/* Scrollable Content */}
       <div className="px-4 py-12 max-w-3xl mx-auto space-y-10 relative z-10">

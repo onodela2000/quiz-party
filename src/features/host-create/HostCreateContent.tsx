@@ -112,13 +112,11 @@ export function HostCreateContent() {
   }
 
   return (
-    <div className="min-h-screen font-serif text-white relative">
-      {/* Fixed Background */}
-      <div 
-        className="fixed inset-0 -z-10"
-        style={{ background: "radial-gradient(ellipse at center, #450a0a 0%, #1a0303 100%)" }}
-      />
-      <div className="fixed inset-0 -z-10 bg-[url('https://www.transparenttextures.com/patterns/diagmonds-light.png')] opacity-20 pointer-events-none" />
+    <div
+      className="min-h-screen font-serif text-white relative"
+      style={{ background: "radial-gradient(ellipse at center, #450a0a 0%, #1a0303 100%)" }}
+    >
+      <div className="fixed inset-0 bg-[url('https://www.transparenttextures.com/patterns/diagmonds-light.png')] opacity-20 pointer-events-none" />
 
       {/* Scrollable Content */}
       <div className="px-4 py-12 max-w-3xl mx-auto space-y-10 relative z-10">
@@ -135,6 +133,12 @@ export function HostCreateContent() {
           <h1 className="text-4xl md:text-5xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-b from-yellow-200 via-yellow-400 to-yellow-700 drop-shadow-sm">
             クイズ大会を作成
           </h1>
+          <a
+            href="/host"
+            className="inline-block text-sm text-yellow-500/60 hover:text-yellow-400 transition-colors underline underline-offset-4 decoration-yellow-500/30 hover:decoration-yellow-400/60"
+          >
+            作成済みの方はこちら
+          </a>
         </motion.div>
 
         <form onSubmit={handleSubmit} className="space-y-8">

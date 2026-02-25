@@ -12,13 +12,11 @@ export function HostLandingContent() {
   const [tab, setTab] = useState<Tab>("login")
 
   return (
-    <div className="min-h-screen font-serif text-white relative">
-      {/* Background */}
-      <div
-        className="fixed inset-0 -z-10"
-        style={{ background: "radial-gradient(ellipse at center, #450a0a 0%, #1a0303 100%)" }}
-      />
-      <div className="fixed inset-0 -z-10 bg-[url('https://www.transparenttextures.com/patterns/diagmonds-light.png')] opacity-20 pointer-events-none" />
+    <div
+      className="min-h-screen font-serif text-white relative"
+      style={{ background: "radial-gradient(ellipse at center, #450a0a 0%, #1a0303 100%)" }}
+    >
+      <div className="fixed inset-0 bg-[url('https://www.transparenttextures.com/patterns/diagmonds-light.png')] opacity-20 pointer-events-none" />
 
       <div className="flex items-center justify-center min-h-screen px-4 py-12">
         <motion.div
