@@ -3,6 +3,7 @@
 import { motion } from "framer-motion";
 import type { Participant } from "@/types/room";
 import { AvatarIcon } from "@/components/avatar/AvatarIcon";
+import { computeRanks } from "@/lib/ranking";
 
 interface ScoreBoardProps {
   participants: Participant[];
@@ -50,6 +51,7 @@ const rowVariants = {
 
 export function ScoreBoard({ participants }: ScoreBoardProps) {
   const sorted = [...participants].sort((a, b) => b.score - a.score);
+  const ranks = computeRanks(sorted);
 
   return (
     <div className="w-full space-y-6">
@@ -69,7 +71,7 @@ export function ScoreBoard({ participants }: ScoreBoardProps) {
         animate="visible"
       >
         {sorted.map((participant, index) => {
-          const rank = index + 1;
+          const rank = ranks[index];
           const rankStyle = RANK_STYLES[rank];
 
           return (

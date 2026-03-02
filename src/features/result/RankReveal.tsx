@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import type { Participant } from "@/types/room";
 import { AvatarIcon } from "@/components/avatar/AvatarIcon";
+import { computeRanks } from "@/lib/ranking";
 
 interface RankRevealProps {
   participants: Participant[];
@@ -117,7 +118,9 @@ function RankCard({
 
 export function RankReveal({ participants, totalToReveal = 3 }: RankRevealProps) {
   const sorted = [...participants].sort((a, b) => b.score - a.score);
+  const ranks = computeRanks(sorted);
   const toReveal = sorted.slice(0, totalToReveal);
+  const toRevealRanks = ranks.slice(0, totalToReveal);
   const [revealedCount, setRevealedCount] = useState(0);
 
   // Reveal one by one from lowest rank to highest
@@ -155,7 +158,8 @@ export function RankReveal({ participants, totalToReveal = 3 }: RankRevealProps)
       <AnimatePresence>
         <div className="space-y-3">
           {visibleParticipants.map((participant, displayIndex) => {
-            const rank = toReveal.indexOf(participant) + 1;
+            const sortedIndex = toReveal.indexOf(participant);
+            const rank = toRevealRanks[sortedIndex];
             return (
               <RankCard
                 key={participant.id}

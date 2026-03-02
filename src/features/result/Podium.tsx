@@ -3,6 +3,7 @@
 import { motion } from "framer-motion";
 import type { Participant } from "@/types/room";
 import { AvatarIcon } from "@/components/avatar/AvatarIcon";
+import { computeRanks } from "@/lib/ranking";
 
 interface PodiumProps {
   participants: Participant[];
@@ -49,11 +50,29 @@ const SPARKLE_POSITIONS = [
 
 const PODIUM_ORDER = [1, 0, 2]; // render order: 2nd, 1st, 3rd
 
-const PODIUM_CONFIG = [
-  // 1st place (index 0)
-  {
+// Position-based delays and CSS order (physical layout)
+const POSITION_LAYOUT = [
+  { delay: 0.5, order: 2 }, // position 0 → center
+  { delay: 0.2, order: 1 }, // position 1 → left
+  { delay: 0.8, order: 3 }, // position 2 → right
+];
+
+// Rank-based visual styling
+const RANK_CONFIG: Record<number, {
+  height: string;
+  label: string;
+  labelColor: string;
+  glow: string;
+  bg: string;
+  crown: boolean;
+  textSize: string;
+  badgeSize: string;
+  nameSize: string;
+  scoreSize: string;
+  borderColor: string;
+}> = {
+  1: {
     height: "h-36",
-    delay: 0.5,
     label: "1st",
     labelColor: "text-yellow-600",
     glow: "shadow-[0_0_40px_rgba(234,179,8,0.6),0_0_80px_rgba(234,179,8,0.25)]",
@@ -61,15 +80,12 @@ const PODIUM_CONFIG = [
     crown: true,
     textSize: "text-5xl",
     badgeSize: "w-20 h-20",
-    iconSize: "text-4xl",
     nameSize: "text-xl",
     scoreSize: "text-2xl",
-    order: 2,
+    borderColor: "border-yellow-400",
   },
-  // 2nd place (index 1)
-  {
+  2: {
     height: "h-24",
-    delay: 0.2,
     label: "2nd",
     labelColor: "text-slate-600",
     glow: "shadow-[0_0_24px_rgba(148,163,184,0.4)]",
@@ -77,15 +93,12 @@ const PODIUM_CONFIG = [
     crown: false,
     textSize: "text-4xl",
     badgeSize: "w-16 h-16",
-    iconSize: "text-3xl",
     nameSize: "text-base",
     scoreSize: "text-xl",
-    order: 1,
+    borderColor: "border-slate-300",
   },
-  // 3rd place (index 2)
-  {
+  3: {
     height: "h-16",
-    delay: 0.8,
     label: "3rd",
     labelColor: "text-amber-600",
     glow: "shadow-[0_0_20px_rgba(217,119,6,0.35)]",
@@ -93,16 +106,20 @@ const PODIUM_CONFIG = [
     crown: false,
     textSize: "text-3xl",
     badgeSize: "w-14 h-14",
-    iconSize: "text-2xl",
     nameSize: "text-sm",
     scoreSize: "text-lg",
-    order: 3,
+    borderColor: "border-amber-600",
   },
-];
+};
+
+function getRankConfig(rank: number) {
+  return RANK_CONFIG[rank] ?? RANK_CONFIG[3];
+}
 
 export function Podium({ participants }: PodiumProps) {
   // participants is assumed to be sorted by score descending
   const top3 = participants.slice(0, 3);
+  const ranks = computeRanks(top3);
 
   if (top3.length === 0) return null;
 
@@ -135,27 +152,29 @@ export function Podium({ participants }: PodiumProps) {
 
       {/* Podium stage */}
       <div className="relative z-10 flex items-end justify-center gap-2 md:gap-6 w-full max-w-3xl px-4">
-        {PODIUM_ORDER.map((rankIndex) => {
-          const participant = top3[rankIndex];
+        {PODIUM_ORDER.map((posIndex) => {
+          const participant = top3[posIndex];
           if (!participant) return null;
-          const config = PODIUM_CONFIG[rankIndex];
+          const rank = ranks[posIndex];
+          const rc = getRankConfig(rank);
+          const layout = POSITION_LAYOUT[posIndex];
 
           return (
             <motion.div
               key={participant.id}
               className="flex flex-col items-center gap-3"
-              style={{ order: config.order }}
+              style={{ order: layout.order }}
               initial={{ opacity: 0, y: 100 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{
-                delay: config.delay,
+                delay: layout.delay,
                 type: "spring",
                 stiffness: 120,
                 damping: 20,
               }}
             >
-              {/* Crown for 1st */}
-              {config.crown && (
+              {/* Crown for rank 1 */}
+              {rc.crown && (
                 <motion.span
                   initial={{ scale: 0, rotate: -30, y: 20 }}
                   animate={{ scale: 1, rotate: 0, y: 0 }}
@@ -166,28 +185,24 @@ export function Podium({ participants }: PodiumProps) {
                 </motion.span>
               )}
 
-              {/* Player badge */}
+              {/* Player icon */}
               <motion.div
                 initial={{ scale: 0 }}
                 animate={{ scale: 1 }}
-                transition={{ delay: config.delay + 0.2, type: "spring", stiffness: 260, damping: 20 }}
+                transition={{ delay: layout.delay + 0.2, type: "spring", stiffness: 260, damping: 20 }}
                 className={[
                   "flex items-center justify-center rounded-2xl border-4 shadow-2xl relative z-10",
-                  config.badgeSize,
-                  config.glow,
-                  rankIndex === 0
-                    ? "border-yellow-400 bg-black/60"
-                    : rankIndex === 1
-                    ? "border-slate-300 bg-black/60"
-                    : "border-amber-600 bg-black/60",
+                  rc.badgeSize,
+                  rc.glow,
+                  rc.borderColor,
                 ].join(" ")}
               >
-                <AvatarIcon icon={participant.icon} size={parseInt(config.badgeSize.replace(/\D/g, "")) - 8} />
+                <AvatarIcon icon={participant.icon} size={parseInt(rc.badgeSize.replace(/\D/g, "")) - 8} />
               </motion.div>
 
               {/* Name */}
               <span
-                className={`font-black text-white text-center leading-tight tracking-wide drop-shadow-md ${config.nameSize}`}
+                className={`font-black text-white text-center leading-tight tracking-wide drop-shadow-md ${rc.nameSize}`}
               >
                 {participant.name}
               </span>
@@ -196,8 +211,8 @@ export function Podium({ participants }: PodiumProps) {
               <motion.span
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                transition={{ delay: config.delay + 0.4 }}
-                className={`font-black tabular-nums ${config.scoreSize} ${config.labelColor} drop-shadow-sm`}
+                transition={{ delay: layout.delay + 0.4 }}
+                className={`font-black tabular-nums ${rc.scoreSize} ${rc.labelColor} drop-shadow-sm`}
               >
                 {participant.score.toLocaleString()}
                 <span className="text-xs font-bold text-white/50 ml-1">pt</span>
@@ -207,14 +222,14 @@ export function Podium({ participants }: PodiumProps) {
               <motion.div
                 className={[
                   "w-24 md:w-40 rounded-t-lg border-x-2 border-t-2 shadow-[0_0_30px_rgba(0,0,0,0.5)]",
-                  config.height,
-                  config.bg,
+                  rc.height,
+                  rc.bg,
                   "flex items-center justify-center relative overflow-hidden backdrop-blur-sm",
                 ].join(" ")}
                 initial={{ scaleY: 0, originY: 1 }}
                 animate={{ scaleY: 1 }}
                 transition={{
-                  delay: config.delay,
+                  delay: layout.delay,
                   type: "spring",
                   stiffness: 150,
                   damping: 24,
@@ -223,9 +238,9 @@ export function Podium({ participants }: PodiumProps) {
               >
                 <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/wood-pattern.png')] opacity-20 mix-blend-overlay" />
                 <span
-                  className={`font-black ${config.textSize} ${config.labelColor} select-none drop-shadow-md relative z-10`}
+                  className={`font-black ${rc.textSize} ${rc.labelColor} select-none drop-shadow-md relative z-10`}
                 >
-                  {config.label}
+                  {rc.label}
                 </span>
               </motion.div>
             </motion.div>

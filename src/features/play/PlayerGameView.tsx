@@ -10,7 +10,6 @@ import { PlayerStatus } from "@/features/play/PlayerStatus"
 import { QuizCard } from "@/components/quiz/QuizCard"
 import { QuizChoices } from "@/components/quiz/QuizChoices"
 import { QuizExplanation } from "@/components/quiz/QuizExplanation"
-import { ParticipantBadge } from "@/components/badge/ParticipantBadge"
 import { getParticipantId } from "@/lib/participant-token"
 import type { Quiz } from "@/types/quiz"
 
@@ -260,11 +259,8 @@ export function PlayerGameView({ title }: { title: string }) {
 
               <div>
                 <h2 className="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-b from-yellow-200 via-yellow-400 to-yellow-700 mb-2 tracking-tight">
-                  FINISH
+                  結果発表
                 </h2>
-                <p className="text-yellow-500/60 text-xs uppercase tracking-[0.3em]">
-                  Check your result
-                </p>
               </div>
 
               {participant && (
@@ -281,9 +277,7 @@ export function PlayerGameView({ title }: { title: string }) {
                 >
                   <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-yellow-500 to-transparent" />
                   
-                  <div className="w-20 h-20 rounded-full border-2 border-yellow-500/50 flex items-center justify-center text-5xl shadow-[0_0_20px_rgba(234,179,8,0.2)] bg-black/40">
-                    <AvatarIcon icon={participant.icon} size={80} className="rounded-xl" />
-                  </div>
+                  <AvatarIcon icon={participant.icon} size={80} />
                   <span className="text-xl font-bold text-yellow-100 tracking-wide">
                     {participant.name}
                   </span>
