@@ -104,8 +104,7 @@ export function HostCreateContent() {
       })
       setHostToken(result.room.id, result.host_id)
 
-      // 管理画面へ遷移（ルームコード付き）
-      router.push(`/host/${result.room.id}/board?code=${result.room_code}`)
+      router.push(`/host/${result.room.id}/board`)
     } catch (err) {
       setErrorMsg(err instanceof Error ? err.message : "エラーが発生しました")
     }

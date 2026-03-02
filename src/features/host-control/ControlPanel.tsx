@@ -1,5 +1,6 @@
 "use client"
 
+import { useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { Button } from "@/components/button/Button"
 import { useGame } from "@/providers/GameProvider"
@@ -12,8 +13,10 @@ type Props = {
 }
 
 export function ControlPanel({ quizzes }: Props) {
-  const { nextPhase } = useGame()
+  const { nextPhase, resetGame } = useGame()
   const { phase, currentQuizIndex } = useRoom()
+
+  const [confirmReset, setConfirmReset] = useState(false)
 
   const totalQuizzes = quizzes.length
   const isLastQuiz = currentQuizIndex >= totalQuizzes - 1
@@ -133,15 +136,49 @@ export function ControlPanel({ quizzes }: Props) {
 
           {phase === "result" && (
             <motion.div
-              key="result-badge"
+              key="result-btns"
               initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -8 }}
-              className="flex items-center justify-center py-6"
+              className="space-y-4"
             >
-              <span className="text-yellow-500/80 text-sm font-bold uppercase tracking-[0.3em] border border-yellow-600/30 rounded-lg px-8 py-4 bg-black/20 backdrop-blur-sm shadow-[0_0_15px_rgba(234,179,8,0.1)]">
-                Game Finished
-              </span>
+              <div className="flex items-center justify-center py-4">
+                <span className="text-yellow-500/80 text-sm font-bold uppercase tracking-[0.3em] border border-yellow-600/30 rounded-lg px-8 py-4 bg-black/20 backdrop-blur-sm shadow-[0_0_15px_rgba(234,179,8,0.1)]">
+                  Game Finished
+                </span>
+              </div>
+              {!confirmReset ? (
+                <Button
+                  variant="primary"
+                  size="lg"
+                  className="w-full py-5 text-lg font-black tracking-widest uppercase bg-gradient-to-r from-slate-700 via-slate-500 to-slate-700 bg-[length:200%_100%] hover:bg-[100%_0] border-none shadow-[0_0_20px_rgba(100,116,139,0.4)] transition-all duration-300"
+                  onClick={() => setConfirmReset(true)}
+                >
+                  RESET GAME
+                </Button>
+              ) : (
+                <div className="space-y-2">
+                  <p className="text-center text-sm text-yellow-200/80">参加者と回答がすべて削除されます</p>
+                  <div className="flex gap-3">
+                    <Button
+                      variant="primary"
+                      size="lg"
+                      className="flex-1 py-4 text-base font-black tracking-widest uppercase bg-gradient-to-r from-red-800 via-red-600 to-red-800 bg-[length:200%_100%] hover:bg-[100%_0] border-none shadow-[0_0_20px_rgba(220,38,38,0.4)] transition-all duration-300"
+                      onClick={() => { resetGame(); setConfirmReset(false) }}
+                    >
+                      リセットする
+                    </Button>
+                    <Button
+                      variant="primary"
+                      size="lg"
+                      className="flex-1 py-4 text-base font-black tracking-widest uppercase bg-gradient-to-r from-slate-700 via-slate-500 to-slate-700 bg-[length:200%_100%] hover:bg-[100%_0] border-none shadow-[0_0_20px_rgba(100,116,139,0.4)] transition-all duration-300"
+                      onClick={() => setConfirmReset(false)}
+                    >
+                      キャンセル
+                    </Button>
+                  </div>
+                </div>
+              )}
             </motion.div>
           )}
         </AnimatePresence>

@@ -135,8 +135,7 @@ function LoginForm() {
       // Save host_id to localStorage
       setHostToken(data.room_id, data.host_id)
 
-      // Navigate to board with room code
-      router.push(`/host/${data.room_id}/board?code=${data.room_code}`)
+      router.push(`/host/${data.room_id}/board`)
     } catch {
       setError("エラーが発生しました")
     } finally {

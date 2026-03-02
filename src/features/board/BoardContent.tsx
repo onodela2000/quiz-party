@@ -120,11 +120,14 @@ function BoardInner({ roomId }: { roomId: string }) {
   // ── Phase: result ────────────────────────────────────────────────────────
   if (phase === "result") {
     return (
-      <ResultScreen
-        participants={participants}
-        title={roomData?.room.title}
-        subtitle={roomData?.room.subtitle}
-      />
+      <>
+        <ResultScreen
+          participants={participants}
+          title={roomData?.room.title}
+          subtitle={roomData?.room.subtitle}
+        />
+        <BoardController quizzes={quizzes} />
+      </>
     );
   }
 
@@ -383,13 +386,47 @@ function BoardInner({ roomId }: { roomId: string }) {
 
 // ── Board Controller ─────────────────────────────────────────────────────────
 function BoardController({ quizzes }: { quizzes: Quiz[] }) {
-  const { nextPhase } = useGame();
+  const { nextPhase, resetGame } = useGame();
   const { phase, currentQuizIndex } = useRoom();
-  
+  const [confirmReset, setConfirmReset] = useState(false);
+
   const totalQuizzes = quizzes.length;
   const isLastQuiz = currentQuizIndex >= totalQuizzes - 1;
 
-  if (phase === "result") return null;
+  if (phase === "result") {
+    return (
+      <div className="fixed bottom-4 right-4 z-50 flex flex-col items-end gap-2">
+        <div className="bg-slate-900/80 backdrop-blur-md border border-white/20 rounded-lg p-2 shadow-2xl opacity-40 hover:opacity-100 transition-all duration-300">
+          {!confirmReset ? (
+            <button
+              onClick={() => setConfirmReset(true)}
+              className="px-4 py-2 bg-slate-600 hover:bg-slate-500 text-white text-sm font-bold rounded flex items-center gap-2 transition-colors"
+            >
+              <span>🔄</span> RESET
+            </button>
+          ) : (
+            <div className="flex flex-col gap-2">
+              <p className="text-xs text-yellow-200/80 text-center px-1">参加者と回答が削除されます</p>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => { resetGame(); setConfirmReset(false); }}
+                  className="px-3 py-2 bg-red-600 hover:bg-red-500 text-white text-sm font-bold rounded transition-colors"
+                >
+                  リセット
+                </button>
+                <button
+                  onClick={() => setConfirmReset(false)}
+                  className="px-3 py-2 bg-slate-600 hover:bg-slate-500 text-white text-sm font-bold rounded transition-colors"
+                >
+                  戻る
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="fixed bottom-4 right-4 z-50 flex flex-col items-end gap-2">

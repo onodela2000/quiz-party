@@ -11,6 +11,18 @@ export function getParticipantId(roomId: string): string | null {
   }
 }
 
+export function clearParticipantId(roomId: string): void {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY)
+    if (!raw) return
+    const tokens: Record<string, string> = JSON.parse(raw)
+    delete tokens[roomId]
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(tokens))
+  } catch {
+    // ignore
+  }
+}
+
 export function setParticipantId(roomId: string, participantId: string): void {
   try {
     const raw = localStorage.getItem(STORAGE_KEY)

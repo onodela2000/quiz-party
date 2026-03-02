@@ -6,7 +6,8 @@ import useSWR from "swr"
 import { RoomProvider } from "@/providers/RoomProvider"
 import { EntryForm } from "@/features/play/EntryForm"
 import { PlayerGameView } from "@/features/play/PlayerGameView"
-import { getParticipantId } from "@/lib/participant-token"
+import { getParticipantId, clearParticipantId } from "@/lib/participant-token"
+import { createClient } from "@/lib/supabase/client"
 
 const fetcher = (url: string) =>
   fetch(url).then((res) => res.json())
@@ -25,8 +26,26 @@ export function PlayContent() {
 
   useEffect(() => {
     const stored = getParticipantId(roomId)
-    setParticipantId(stored)
-    setIsHydrated(true)
+    if (!stored) {
+      setIsHydrated(true)
+      return
+    }
+    // Verify the participant still exists in DB
+    const supabase = createClient()
+    supabase
+      .from("participants")
+      .select("id")
+      .eq("id", stored)
+      .eq("room_id", roomId)
+      .single()
+      .then(({ data }) => {
+        if (data) {
+          setParticipantId(stored)
+        } else {
+          clearParticipantId(roomId)
+        }
+        setIsHydrated(true)
+      })
   }, [roomId])
 
   const handleEntered = (id: string) => {

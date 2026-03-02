@@ -5,6 +5,7 @@ import type { GamePhase } from '@/types/game'
 
 type GameContextValue = {
   nextPhase: (phase: GamePhase, currentQuizIndex?: number) => Promise<void>
+  resetGame: () => Promise<void>
 }
 
 const GameContext = createContext<GameContextValue | null>(null)
@@ -31,8 +32,15 @@ export function GameProvider({ roomId, children }: GameProviderProps) {
     [roomId]
   )
 
+  const resetGame = useCallback(async () => {
+    const res = await fetch(`/api/rooms/${roomId}/reset`, { method: 'POST' })
+    if (res.ok) {
+      window.location.reload()
+    }
+  }, [roomId])
+
   return (
-    <GameContext.Provider value={{ nextPhase }}>
+    <GameContext.Provider value={{ nextPhase, resetGame }}>
       {children}
     </GameContext.Provider>
   )
