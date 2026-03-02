@@ -11,6 +11,7 @@ import { QuizCard } from "@/components/quiz/QuizCard"
 import { QuizChoices } from "@/components/quiz/QuizChoices"
 import { QuizExplanation } from "@/components/quiz/QuizExplanation"
 import { getParticipantId } from "@/lib/participant-token"
+import { computeRanks } from "@/lib/ranking"
 import type { Quiz } from "@/types/quiz"
 
 const fetcher = (url: string) =>
@@ -237,69 +238,87 @@ export function PlayerGameView({ title }: { title: string }) {
           )}
 
           {/* RESULT phase */}
-          {phase === "result" && (
-            <motion.div
-              key="result"
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0 }}
-              className="text-center py-8 space-y-8 max-w-lg mx-auto w-full"
-            >
-              {/* ... existing result content ... */}
+          {phase === "result" && (() => {
+            const sorted = [...participants].sort((a, b) => b.score - a.score)
+            const ranks = computeRanks(sorted)
+            const myIndex = sorted.findIndex((p) => p.id === participantId)
+            const myRank = myIndex >= 0 ? ranks[myIndex] : null
+            const isFirst = myRank === 1
+            const rankEmoji = isFirst ? "🏆" : "🎖️"
+
+            return (
               <motion.div
-                animate={{ 
-                  rotate: [0, -5, 5, -5, 5, 0],
-                  scale: [1, 1.1, 1]
-                }}
-                transition={{ delay: 0.3, duration: 2, repeat: Infinity, repeatDelay: 3 }}
-                className="text-7xl filter drop-shadow-[0_0_30px_rgba(234,179,8,0.6)]"
+                key="result"
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0 }}
+                className="text-center py-8 space-y-8 max-w-lg mx-auto w-full"
               >
-                🏆
-              </motion.div>
-
-              <div>
-                <h2 className="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-b from-yellow-200 via-yellow-400 to-yellow-700 mb-2 tracking-tight">
-                  結果発表
-                </h2>
-              </div>
-
-              {participant && (
                 <motion.div
-                  initial={{ opacity: 0, y: 16 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.4 }}
-                  className={[
-                    "relative overflow-hidden inline-flex flex-col items-center gap-3 px-10 py-8 rounded-2xl",
-                    "bg-gradient-to-br from-black/60 to-slate-900/60",
-                    "border border-yellow-600/40",
-                    "shadow-[0_0_50px_rgba(0,0,0,0.5)]",
-                  ].join(" ")}
+                  animate={{
+                    rotate: [0, -5, 5, -5, 5, 0],
+                    scale: [1, 1.1, 1]
+                  }}
+                  transition={{ delay: 0.3, duration: 2, repeat: Infinity, repeatDelay: 3 }}
+                  className="text-7xl filter drop-shadow-[0_0_30px_rgba(234,179,8,0.6)]"
                 >
-                  <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-yellow-500 to-transparent" />
-                  
-                  <AvatarIcon icon={participant.icon} size={80} />
-                  <span className="text-xl font-bold text-yellow-100 tracking-wide">
-                    {participant.name}
-                  </span>
-                  <div className="flex flex-col items-center mt-2">
-                    <span className="text-xs text-yellow-600 font-bold uppercase tracking-widest mb-1">Total Score</span>
-                    <div className="flex items-baseline gap-1">
-                      <span className="text-5xl font-black text-yellow-400 tabular-nums drop-shadow-md">
-                        {participant.score.toLocaleString()}
-                      </span>
-                      <span className="text-sm text-yellow-600 font-bold">pt</span>
-                    </div>
-                  </div>
+                  {rankEmoji}
                 </motion.div>
-              )}
 
-              {enrichedAnswers.length > 0 && (
-                <div className="px-4">
-                  <PlayerStatus answers={enrichedAnswers} />
+                <div>
+                  <h2 className="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-b from-yellow-200 via-yellow-400 to-yellow-700 mb-2 tracking-tight">
+                    結果発表
+                  </h2>
                 </div>
-              )}
-            </motion.div>
-          )}
+
+                {participant && myRank != null && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 16 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.4 }}
+                    className={[
+                      "relative overflow-hidden inline-flex flex-col items-center gap-3 px-10 py-8 rounded-2xl",
+                      "bg-gradient-to-br from-black/60 to-slate-900/60",
+                      isFirst ? "border-2 border-yellow-500/60" : "border border-yellow-600/40",
+                      "shadow-[0_0_50px_rgba(0,0,0,0.5)]",
+                    ].join(" ")}
+                  >
+                    <div className={`absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent ${isFirst ? "via-yellow-400" : "via-yellow-600/60"} to-transparent`} />
+
+                    {/* Rank badge */}
+                    <div className={[
+                      "text-sm font-black uppercase tracking-widest px-4 py-1 rounded-full",
+                      isFirst
+                        ? "bg-yellow-500/20 text-yellow-300 border border-yellow-500/40"
+                        : "bg-white/5 text-white/60 border border-white/10",
+                    ].join(" ")}>
+                      {myRank === 1 ? "👑 1st Place" : `${myRank}${myRank === 2 ? "nd" : myRank === 3 ? "rd" : "th"} Place`}
+                    </div>
+
+                    <AvatarIcon icon={participant.icon} size={80} />
+                    <span className="text-xl font-bold text-yellow-100 tracking-wide">
+                      {participant.name}
+                    </span>
+                    <div className="flex flex-col items-center mt-2">
+                      <span className="text-xs text-yellow-600 font-bold uppercase tracking-widest mb-1">Total Score</span>
+                      <div className="flex items-baseline gap-1">
+                        <span className="text-5xl font-black text-yellow-400 tabular-nums drop-shadow-md">
+                          {participant.score.toLocaleString()}
+                        </span>
+                        <span className="text-sm text-yellow-600 font-bold">pt</span>
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+
+                {enrichedAnswers.length > 0 && (
+                  <div className="px-4">
+                    <PlayerStatus answers={enrichedAnswers} />
+                  </div>
+                )}
+              </motion.div>
+            )
+          })()}
         </AnimatePresence>
       </div>
     </div>
