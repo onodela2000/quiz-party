@@ -12,7 +12,7 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://quizparty.jp";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
@@ -32,13 +32,20 @@ export const metadata: Metadata = {
     type: "website",
     locale: "ja_JP",
     siteName: "Quiz Party JP",
-    images: [{ url: "/icon.svg", width: 512, height: 512, alt: "Quiz Party JP" }],
+    images: [
+      {
+        url: "/opengraph-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Quiz Party JP - スマホだけで会場が熱狂するクイズ大会プラットフォーム",
+      },
+    ],
   },
   twitter: {
-    card: "summary",
+    card: "summary_large_image",
     title: "Quiz Party JP | スマホだけで、会場が熱狂する。",
     description: "クイズ大会を今すぐ無料で開催しよう。URLを共有するだけで参加者全員がリアルタイムで繋がる。",
-    images: ["/icon.svg"],
+    images: ["/opengraph-image.png"],
   },
 };
 
