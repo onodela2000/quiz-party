@@ -1,66 +1,29 @@
-import { NextRequest, NextResponse } from 'next/server'
 import { createHash } from 'crypto'
-import { createClient } from '@/lib/supabase/server'
+import { NextRequest, NextResponse } from 'next/server'
+import { adminDb } from '@/lib/firebase/admin'
 
-function hashPassword(password: string): string {
-  return createHash('sha256').update(password).digest('hex')
-}
+const hashPassword = (password: string) => createHash('sha256').update(password).digest('hex')
 
-interface VerifyBody {
-  host_id?: string
-  password?: string
-  room_code?: string
-}
-
-export async function POST(
-  request: NextRequest,
-  { params }: { params: Promise<{ roomId: string }> }
-) {
+export async function POST(request: NextRequest, { params }: { params: Promise<{ roomId: string }> }) {
   try {
     const { roomId } = await params
-    const body: VerifyBody = await request.json()
+    const body = await request.json()
+    const snapshot = await adminDb.collection('rooms').doc(roomId).get()
+    if (!snapshot.exists) return NextResponse.json({ error: 'Room not found' }, { status: 404 })
+    const room = snapshot.data()!
 
-    const supabase = await createClient()
-    const { data: room, error } = await supabase
-      .from('rooms')
-      .select('host_id, host_password_hash, room_code')
-      .eq('id', roomId)
-      .single()
-
-    if (error || !room) {
-      return NextResponse.json({ error: 'Room not found' }, { status: 404 })
-    }
-
-    // Verify by host_id token (localStorage)
-    if (body.host_id) {
-      if (room.host_id === body.host_id) {
-        return NextResponse.json({ valid: true, host_id: room.host_id })
-      }
-      return NextResponse.json({ valid: false }, { status: 401 })
-    }
-
-    // Verify by room_code
-    if (body.room_code) {
-      if (room.room_code && room.room_code === body.room_code) {
-        return NextResponse.json({ valid: true, host_id: room.host_id })
-      }
-      return NextResponse.json({ valid: false }, { status: 401 })
-    }
-
-    // Verify by password
-    if (body.password) {
-      if (!room.host_password_hash) {
-        return NextResponse.json({ error: 'This room has no password set' }, { status: 400 })
-      }
-      const hash = hashPassword(body.password)
-      if (hash === room.host_password_hash) {
-        return NextResponse.json({ valid: true, host_id: room.host_id })
-      }
-      return NextResponse.json({ valid: false }, { status: 401 })
-    }
-
-    return NextResponse.json({ error: 'host_id, room_code, or password required' }, { status: 400 })
-  } catch {
+    const valid = body.host_id
+      ? room.host_id === body.host_id
+      : body.room_code
+        ? room.room_code === body.room_code
+        : body.password
+          ? Boolean(room.host_password_hash) && hashPassword(body.password) === room.host_password_hash
+          : false
+    return valid
+      ? NextResponse.json({ valid: true, host_id: room.host_id })
+      : NextResponse.json({ valid: false }, { status: 401 })
+  } catch (error) {
+    console.error(error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

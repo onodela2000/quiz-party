@@ -2,7 +2,8 @@
 
 import { useState } from "react"
 import { motion } from "framer-motion"
-import { createClient } from "@/lib/supabase/client"
+import { doc, setDoc } from "firebase/firestore"
+import { db } from "@/lib/firebase/client"
 import { setParticipantId } from "@/lib/participant-token"
 
 const STYLES = ["fun-emoji", "bottts", "dylan", "notionists", "pixel-art", "adventurer"] as const
@@ -40,18 +41,17 @@ export function EntryForm({ roomId, title, subtitle, onEntered }: EntryFormProps
     setIsLoading(true)
     setError(null)
     try {
-      const supabase = createClient()
-      const { data, error: insertError } = await supabase
-        .from("participants")
-        .insert({ name: name.trim(), icon: selectedUrl, room_id: roomId })
-        .select()
-        .single()
-      if (insertError || !data) {
-        setError("参加に失敗しました。もう一度お試しください。")
-        return
-      }
-      setParticipantId(roomId, data.id)
-      onEntered(data.id)
+      const participantId = crypto.randomUUID()
+      await setDoc(doc(db, "participants", participantId), {
+        id: participantId,
+        created_at: new Date().toISOString(),
+        name: name.trim(),
+        icon: selectedUrl,
+        room_id: roomId,
+        score: 0,
+      })
+      setParticipantId(roomId, participantId)
+      onEntered(participantId)
     } catch {
       setError("エラーが発生しました。もう一度お試しください。")
     } finally {

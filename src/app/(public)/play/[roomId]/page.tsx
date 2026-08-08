@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { PlayContent } from "@/features/play/PlayContent";
-import { createClient } from "@/lib/supabase/server";
+import { adminDb } from "@/lib/firebase/admin";
 
 type PageProps = {
   params: Promise<{ roomId: string }>;
@@ -8,13 +8,8 @@ type PageProps = {
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { roomId } = await params;
-  const supabase = await createClient();
-
-  const { data: room } = await supabase
-    .from("rooms")
-    .select("title, subtitle")
-    .eq("id", roomId)
-    .single();
+  const snapshot = await adminDb.collection("rooms").doc(roomId).get();
+  const room = snapshot.data();
 
   if (!room?.title) {
     return {};

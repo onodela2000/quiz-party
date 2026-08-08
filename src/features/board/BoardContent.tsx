@@ -4,7 +4,8 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import useSWR from "swr";
 import { motion, AnimatePresence } from "framer-motion";
-import { createClient } from "@/lib/supabase/client";
+import { collection, onSnapshot, query, where } from "firebase/firestore";
+import { db } from "@/lib/firebase/client";
 import { RoomProvider, useRoom } from "@/providers/RoomProvider";
 import { GameProvider, useGame } from "@/providers/GameProvider";
 import { QuizCard } from "@/components/quiz/QuizCard";
@@ -72,49 +73,18 @@ function BoardInner({ roomId }: { roomId: string }) {
   useEffect(() => {
     if (!currentQuiz) return;
 
-    const supabase = createClient();
-
-    // Fetch existing answers for this quiz
-    supabase
-      .from("answers")
-      .select("*")
-      .eq("quiz_id", currentQuiz.id)
-      .then(({ data: rows }) => {
-        if (rows) {
-          setAnswersMap((prev) => {
-            const next = new Map(prev);
-            (rows as Answer[]).forEach((row) => {
-              next.set(row.participant_id, row.choice_index);
-            });
-            return next;
-          });
-        }
+    const answersQuery = query(
+      collection(db, "answers"),
+      where("quiz_id", "==", currentQuiz.id)
+    );
+    return onSnapshot(answersQuery, (snapshot) => {
+      const next = new Map<string, number>();
+      snapshot.docs.forEach((item) => {
+        const answer = item.data() as Answer;
+        next.set(answer.participant_id, answer.choice_index);
       });
-
-    const channel = supabase
-      .channel(`answers:quiz:${currentQuiz.id}`)
-      .on(
-        "postgres_changes",
-        {
-          event: "INSERT",
-          schema: "public",
-          table: "answers",
-          filter: `quiz_id=eq.${currentQuiz.id}`,
-        },
-        (payload) => {
-          const row = payload.new as Answer;
-          setAnswersMap((prev) => {
-            const next = new Map(prev);
-            next.set(row.participant_id, row.choice_index);
-            return next;
-          });
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
+      setAnswersMap(next);
+    });
   }, [currentQuiz]);
 
   // ── Phase: result ────────────────────────────────────────────────────────

@@ -1,16 +1,9 @@
-import { createClient } from "@/lib/supabase/client"
-
 export async function uploadQuizImage(file: File): Promise<string> {
-  const supabase = createClient()
-  const ext = file.name.split(".").pop() ?? "png"
-  const path = `${crypto.randomUUID()}.${ext}`
+  const formData = new FormData()
+  formData.set('file', file)
 
-  const { error } = await supabase.storage
-    .from("quiz-images")
-    .upload(path, file, { cacheControl: "3600", upsert: false })
-
-  if (error) throw error
-
-  const { data } = supabase.storage.from("quiz-images").getPublicUrl(path)
-  return data.publicUrl
+  const response = await fetch('/api/uploads', { method: 'POST', body: formData })
+  const data = await response.json()
+  if (!response.ok) throw new Error(data.error ?? '画像のアップロードに失敗しました')
+  return data.url
 }

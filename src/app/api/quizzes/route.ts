@@ -1,147 +1,50 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
-import { Quiz } from '@/types/quiz'
-
-interface CreateQuizBody {
-  room_id: string
-  question: string
-  choices: string[]
-  correct_index: number
-  explanation: string
-  image_url?: string
-  order: number
-}
+import { adminDb } from '@/lib/firebase/admin'
+import { deleteQuery, documentData } from '@/lib/firebase/data'
+import type { Quiz } from '@/types/quiz'
 
 export async function GET(request: NextRequest) {
   try {
-    const { searchParams } = new URL(request.url)
-    const roomId = searchParams.get('roomId')
-
-    if (!roomId) {
-      return NextResponse.json({ error: 'roomId is required' }, { status: 400 })
-    }
-
-    const supabase = await createClient()
-
-    const { data: quizzes, error } = await supabase
-      .from('quizzes')
-      .select()
-      .eq('room_id', roomId)
-      .order('order', { ascending: true })
-
-    if (error) {
-      return NextResponse.json({ error: error.message }, { status: 500 })
-    }
-
-    return NextResponse.json({ quizzes: (quizzes ?? []) as Quiz[] })
-  } catch {
+    const roomId = new URL(request.url).searchParams.get('roomId')
+    if (!roomId) return NextResponse.json({ error: 'roomId is required' }, { status: 400 })
+    const snapshot = await adminDb.collection('quizzes').where('room_id', '==', roomId).orderBy('order').get()
+    return NextResponse.json({ quizzes: snapshot.docs.map((item) => documentData<Quiz>(item)) })
+  } catch (error) {
+    console.error(error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
 
 export async function POST(request: NextRequest) {
   try {
-    const body: CreateQuizBody = await request.json()
-    const {
-      room_id,
-      question,
-      choices,
-      correct_index,
-      explanation,
-      image_url,
-      order,
-    } = body
-
-    if (!room_id || !question || !choices) {
-      return NextResponse.json(
-        { error: 'room_id, question, and choices are required' },
-        { status: 400 }
-      )
-    }
-
-    const supabase = await createClient()
-
-    const { data: quiz, error } = await supabase
-      .from('quizzes')
-      .insert({
-        room_id,
-        question,
-        choices,
-        correct_index,
-        explanation,
-        image_url: image_url ?? null,
-        order,
-      })
-      .select()
-      .single()
-
-    if (error || !quiz) {
-      return NextResponse.json(
-        { error: error?.message ?? 'Failed to create quiz' },
-        { status: 500 }
-      )
-    }
-
-    return NextResponse.json({ quiz: quiz as Quiz }, { status: 201 })
-  } catch {
+    const body = await request.json()
+    if (!body.room_id || !body.question || !body.choices) return NextResponse.json({ error: 'room_id, question, and choices are required' }, { status: 400 })
+    const ref = adminDb.collection('quizzes').doc()
+    const quiz = { ...body, id: ref.id, image_url: body.image_url ?? null, explanation_image_url: body.explanation_image_url ?? null }
+    await ref.set(quiz)
+    return NextResponse.json({ quiz }, { status: 201 })
+  } catch (error) {
+    console.error(error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
 
-interface ReplaceQuizzesBody {
-  room_id: string
-  quizzes: {
-    question: string
-    choices: string[]
-    correct_index: number
-    explanation: string
-    image_url?: string
-    explanation_image_url?: string
-    order: number
-  }[]
-}
-
 export async function PUT(request: NextRequest) {
   try {
-    const body: ReplaceQuizzesBody = await request.json()
-    const { room_id, quizzes } = body
-
-    if (!room_id || !Array.isArray(quizzes)) {
-      return NextResponse.json(
-        { error: 'room_id and quizzes are required' },
-        { status: 400 }
-      )
-    }
-
-    const supabase = await createClient()
-
-    // Delete all existing quizzes for this room
-    const { error: deleteError } = await supabase
-      .from('quizzes')
-      .delete()
-      .eq('room_id', room_id)
-
-    if (deleteError) {
-      return NextResponse.json({ error: deleteError.message }, { status: 500 })
-    }
-
-    // Re-insert all quizzes
-    const { data: newQuizzes, error: insertError } = await supabase
-      .from('quizzes')
-      .insert(quizzes.map((q) => ({
-        ...q,
-        room_id,
-        image_url: q.image_url ?? null,
-        explanation_image_url: q.explanation_image_url ?? null,
-      })))
-      .select()
-
-    if (insertError) {
-      return NextResponse.json({ error: insertError.message }, { status: 500 })
-    }
-
-    return NextResponse.json({ quizzes: (newQuizzes ?? []) as Quiz[] })
-  } catch {
+    const { room_id, quizzes } = await request.json()
+    if (!room_id || !Array.isArray(quizzes)) return NextResponse.json({ error: 'room_id and quizzes are required' }, { status: 400 })
+    await deleteQuery(adminDb.collection('quizzes').where('room_id', '==', room_id))
+    const batch = adminDb.batch()
+    const newQuizzes = quizzes.map((quiz: Record<string, unknown>) => {
+      const ref = adminDb.collection('quizzes').doc()
+      const data = { ...quiz, id: ref.id, room_id, image_url: quiz.image_url ?? null, explanation_image_url: quiz.explanation_image_url ?? null }
+      batch.set(ref, data)
+      return data
+    })
+    await batch.commit()
+    return NextResponse.json({ quizzes: newQuizzes })
+  } catch (error) {
+    console.error(error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

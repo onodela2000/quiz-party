@@ -9,8 +9,8 @@
     "lint": "eslint"
   },
   "dependencies": {
-    "@supabase/ssr": "^0.8.0",
-    "@supabase/supabase-js": "^2.97.0",
+    "firebase": "^12.17.1",
+    "firebase-admin": "^14.2.0",
     "framer-motion": "^12.34.3",
     "next": "16.1.6",
     "nuqs": "^2.8.8",

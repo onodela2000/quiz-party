@@ -7,7 +7,8 @@ import { RoomProvider } from "@/providers/RoomProvider"
 import { EntryForm } from "@/features/play/EntryForm"
 import { PlayerGameView } from "@/features/play/PlayerGameView"
 import { getParticipantId, clearParticipantId } from "@/lib/participant-token"
-import { createClient } from "@/lib/supabase/client"
+import { doc, getDoc } from "firebase/firestore"
+import { db } from "@/lib/firebase/client"
 
 const fetcher = (url: string) =>
   fetch(url).then((res) => res.json())
@@ -31,15 +32,8 @@ export function PlayContent() {
       return
     }
     // Verify the participant still exists in DB
-    const supabase = createClient()
-    supabase
-      .from("participants")
-      .select("id")
-      .eq("id", stored)
-      .eq("room_id", roomId)
-      .single()
-      .then(({ data }) => {
-        if (data) {
+    getDoc(doc(db, "participants", stored)).then((snapshot) => {
+        if (snapshot.exists() && snapshot.data().room_id === roomId) {
           setParticipantId(stored)
         } else {
           clearParticipantId(roomId)

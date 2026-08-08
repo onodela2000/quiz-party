@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
-import { Room } from '@/types/room'
-import { GamePhase } from '@/types/game'
+import { adminDb } from '@/lib/firebase/admin'
+import { documentData } from '@/lib/firebase/data'
+import type { Room } from '@/types/room'
+import type { GamePhase } from '@/types/game'
 
 interface PatchRoomBody {
   status?: GamePhase
@@ -10,66 +11,33 @@ interface PatchRoomBody {
   subtitle?: string | null
 }
 
-export async function GET(
-  _request: NextRequest,
-  { params }: { params: Promise<{ roomId: string }> }
-) {
+export async function GET(_request: NextRequest, { params }: { params: Promise<{ roomId: string }> }) {
   try {
     const { roomId } = await params
-    const supabase = await createClient()
-
-    const { data: room, error } = await supabase
-      .from('rooms')
-      .select()
-      .eq('id', roomId)
-      .single()
-
-    if (error || !room) {
-      return NextResponse.json(
-        { error: error?.message ?? 'Room not found' },
-        { status: 404 }
-      )
-    }
-
-    return NextResponse.json({ room: room as Room })
-  } catch {
+    const snapshot = await adminDb.collection('rooms').doc(roomId).get()
+    if (!snapshot.exists) return NextResponse.json({ error: 'Room not found' }, { status: 404 })
+    return NextResponse.json({ room: documentData<Room>(snapshot) })
+  } catch (error) {
+    console.error(error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
 
-export async function PATCH(
-  request: NextRequest,
-  { params }: { params: Promise<{ roomId: string }> }
-) {
+export async function PATCH(request: NextRequest, { params }: { params: Promise<{ roomId: string }> }) {
   try {
     const { roomId } = await params
     const body: PatchRoomBody = await request.json()
-    const { status, current_quiz_index, title, subtitle } = body
+    const updateData: Record<string, unknown> = {}
+    if (body.status !== undefined) updateData.status = body.status
+    if (body.current_quiz_index !== undefined) updateData.current_quiz_index = body.current_quiz_index
+    if (body.title !== undefined) updateData.title = body.title
+    if (body.subtitle !== undefined) updateData.subtitle = body.subtitle
 
-    const updateData: { status?: string; current_quiz_index?: number; title?: string; subtitle?: string | null } = {}
-    if (status !== undefined) updateData.status = status
-    if (current_quiz_index !== undefined) updateData.current_quiz_index = current_quiz_index
-    if (title !== undefined) updateData.title = title
-    if (subtitle !== undefined) updateData.subtitle = subtitle
-
-    const supabase = await createClient()
-
-    const { data: room, error } = await supabase
-      .from('rooms')
-      .update(updateData)
-      .eq('id', roomId)
-      .select()
-      .single()
-
-    if (error || !room) {
-      return NextResponse.json(
-        { error: error?.message ?? 'Failed to update room' },
-        { status: 500 }
-      )
-    }
-
-    return NextResponse.json({ room: room as Room })
-  } catch {
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+    const ref = adminDb.collection('rooms').doc(roomId)
+    await ref.update(updateData)
+    return NextResponse.json({ room: documentData<Room>(await ref.get()) })
+  } catch (error) {
+    console.error(error)
+    return NextResponse.json({ error: 'Failed to update room' }, { status: 500 })
   }
 }

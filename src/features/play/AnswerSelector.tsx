@@ -2,7 +2,8 @@
 
 import { useState } from "react"
 import { motion } from "framer-motion"
-import { createClient } from "@/lib/supabase/client"
+import { doc, setDoc } from "firebase/firestore"
+import { db } from "@/lib/firebase/client"
 import { QuizChoices } from "@/components/quiz/QuizChoices"
 
 interface AnswerSelectorProps {
@@ -32,13 +33,15 @@ export function AnswerSelector({
     setIsSubmitting(true)
 
     try {
-      const supabase = createClient()
-      await supabase.from("answers").upsert({
+      const answerId = `${quizId}_${participantId}`
+      await setDoc(doc(db, "answers", answerId), {
+        id: answerId,
+        answered_at: new Date().toISOString(),
         quiz_id: quizId,
         participant_id: participantId,
         choice_index: pendingIndex,
         is_correct: false,
-      }, { onConflict: "quiz_id,participant_id" })
+      })
 
       setSubmittedIndex(pendingIndex)
       onAnswered(pendingIndex)
