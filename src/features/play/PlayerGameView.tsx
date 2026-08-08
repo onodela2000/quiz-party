@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react"
 import useSWR from "swr"
 import { motion, AnimatePresence } from "framer-motion"
+import { collection, onSnapshot, query, where } from "firebase/firestore"
 import { AvatarIcon } from "@/components/avatar/AvatarIcon"
 import { useRoom } from "@/providers/RoomProvider"
 import { AnswerSelector } from "@/features/play/AnswerSelector"
@@ -12,6 +13,8 @@ import { QuizChoices } from "@/components/quiz/QuizChoices"
 import { QuizExplanation } from "@/components/quiz/QuizExplanation"
 import { getParticipantId } from "@/lib/participant-token"
 import { computeRanks } from "@/lib/ranking"
+import { db } from "@/lib/firebase/client"
+import { QuizReview } from "@/features/play/QuizReview"
 import type { Quiz } from "@/types/quiz"
 
 const fetcher = (url: string) =>
@@ -45,6 +48,27 @@ export function PlayerGameView({ title }: { title: string }) {
     setParticipantId(id)
   }, [roomId])
 
+  useEffect(() => {
+    if (!participantId) return
+    const answersQuery = query(
+      collection(db, "answers"),
+      where("participant_id", "==", participantId)
+    )
+    return onSnapshot(answersQuery, (snapshot) => {
+      const records = snapshot.docs.map((answer) => {
+        const data = answer.data()
+        return {
+          quizId: data.quiz_id as string,
+          choiceIndex: data.choice_index as number,
+          is_correct: false,
+        }
+      })
+      setAnswerRecords(records)
+      setAnsweredQuizIds(new Set(records.map((record) => record.quizId)))
+      setSelectedIndexMap(Object.fromEntries(records.map((record) => [record.quizId, record.choiceIndex])))
+    })
+  }, [participantId])
+
   const currentQuiz = quizzes?.[currentQuizIndex] ?? null
   const totalQuizzes = quizzes?.length ?? 0
 
@@ -70,13 +94,10 @@ export function PlayerGameView({ title }: { title: string }) {
     participants.find((p) => p.id === participantId) ?? null
 
   // Sync is_correct from reveal phase: check if selected answer matches correct_index
-  const enrichedAnswers = answerRecords.map((record) => {
-    const quiz = quizzes?.find((q) => q.id === record.quizId)
-    if (!quiz) return record
-    return {
-      ...record,
-      is_correct: record.choiceIndex === quiz.correct_index,
-    }
+  const enrichedAnswers = (quizzes ?? []).flatMap((quiz) => {
+    const record = answerRecords.find((answer) => answer.quizId === quiz.id)
+    if (!record) return []
+    return [{ ...record, is_correct: record.choiceIndex === quiz.correct_index }]
   })
 
   return (
@@ -176,6 +197,7 @@ export function PlayerGameView({ title }: { title: string }) {
                     quizId={currentQuiz.id}
                     choices={currentQuiz.choices}
                     participantId={participantId}
+                    submittedIndex={selectedIndexMap[currentQuiz.id]}
                     onAnswered={handleAnswered}
                   />
                 ) : (
@@ -252,7 +274,7 @@ export function PlayerGameView({ title }: { title: string }) {
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0 }}
-                className="text-center py-8 space-y-8 max-w-lg mx-auto w-full"
+                className="text-center py-8 space-y-8 max-w-3xl mx-auto w-full"
               >
                 <motion.div
                   animate={{
@@ -314,6 +336,12 @@ export function PlayerGameView({ title }: { title: string }) {
                 {enrichedAnswers.length > 0 && (
                   <div className="px-4">
                     <PlayerStatus answers={enrichedAnswers} />
+                  </div>
+                )}
+
+                {quizzes && quizzes.length > 0 && (
+                  <div className="px-4">
+                    <QuizReview quizzes={quizzes} answers={enrichedAnswers} />
                   </div>
                 )}
               </motion.div>

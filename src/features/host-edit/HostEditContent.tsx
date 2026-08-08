@@ -6,6 +6,7 @@ import { AnimatePresence, motion } from "framer-motion"
 import useSWR from "swr"
 import useSWRMutation from "swr/mutation"
 import { QuizEditor, type QuizForm } from "@/features/host-create/QuizEditor"
+import { QuizCsvImport } from "@/features/host-create/QuizCsvImport"
 import { QuizCard } from "@/components/quiz/QuizCard"
 import { QuizChoices } from "@/components/quiz/QuizChoices"
 import type { Room } from "@/types/room"
@@ -117,6 +118,11 @@ export function HostEditContent() {
 
   const handleChangeQuiz = (index: number, quiz: QuizForm) => {
     setQuizzes((prev) => prev.map((q, i) => (i === index ? quiz : q)))
+  }
+
+  const handleCsvImport = (imported: QuizForm[]) => {
+    if (!window.confirm("現在の問題をCSVの内容で置き換えますか？")) return
+    setQuizzes(imported)
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -238,10 +244,11 @@ export function HostEditContent() {
 
           {/* クイズリスト */}
           <div className="space-y-6">
-            <div className="flex items-center justify-between border-b border-white/10 pb-4">
+            <div className="flex flex-col gap-3 border-b border-white/10 pb-4 sm:flex-row sm:items-center sm:justify-between">
               <h2 className="text-sm font-bold text-yellow-500/80 uppercase tracking-wider">
                 クイズ一覧 ({quizzes.length}問)
               </h2>
+              <QuizCsvImport onImport={handleCsvImport} />
             </div>
 
             <AnimatePresence mode="popLayout">

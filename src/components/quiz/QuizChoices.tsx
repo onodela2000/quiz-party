@@ -82,6 +82,7 @@ export function QuizChoices({
         return (
           <motion.div key={index} variants={itemVariants}>
             <button
+              type="button"
               className={getChoiceStyle(index, selectedIndex, correctIndex)}
               onClick={() => onSelect?.(index)}
               disabled={disabled || correctIndex !== undefined}

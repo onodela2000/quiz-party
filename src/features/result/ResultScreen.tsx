@@ -56,7 +56,7 @@ export function ResultScreen({ participants, title, subtitle }: ResultScreenProp
         <Podium participants={sorted} />
 
         {/* Rank reveal */}
-        <RankReveal participants={sorted} totalToReveal={3} />
+        <RankReveal participants={sorted} maxRank={3} />
       </div>
     </motion.div>
   );

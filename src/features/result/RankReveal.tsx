@@ -8,7 +8,7 @@ import { computeRanks } from "@/lib/ranking";
 
 interface RankRevealProps {
   participants: Participant[];
-  totalToReveal?: number;
+  maxRank?: number;
 }
 
 const RANK_COLORS: Record<number, { badge: string; name: string; score: string; border: string; glow: string }> = {
@@ -116,11 +116,14 @@ function RankCard({
   );
 }
 
-export function RankReveal({ participants, totalToReveal = 3 }: RankRevealProps) {
+export function RankReveal({ participants, maxRank = 3 }: RankRevealProps) {
   const sorted = [...participants].sort((a, b) => b.score - a.score);
   const ranks = computeRanks(sorted);
-  const toReveal = sorted.slice(0, totalToReveal);
-  const toRevealRanks = ranks.slice(0, totalToReveal);
+  const ranked = sorted
+    .map((participant, index) => ({ participant, rank: ranks[index] }))
+    .filter(({ rank }) => rank <= maxRank);
+  const toReveal = ranked.map(({ participant }) => participant);
+  const toRevealRanks = ranked.map(({ rank }) => rank);
   const [revealedCount, setRevealedCount] = useState(0);
 
   // Reveal one by one from lowest rank to highest
@@ -133,7 +136,7 @@ export function RankReveal({ participants, totalToReveal = 3 }: RankRevealProps)
   }, [revealedCount, toReveal.length]);
 
   // Cards shown in bottom-to-top order (lowest rank first, then count up)
-  // We reveal from position totalToReveal down to 1
+  // Everyone ranked through maxRank is included, including ties.
   const visibleParticipants = toReveal
     .slice(0, revealedCount)
     .reverse(); // show latest revealed at top
